@@ -1,5 +1,4 @@
-# core/event_manager.py
-
+#event manager for lifecycle  without modifing the avl tree
 
 from core.event import Event
 

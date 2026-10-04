@@ -35,7 +35,7 @@ class UndoStack:
         self._items.clear()
 
 
-#resport queue, for processing the events in order
+#resport queue, for processing the reports in order
 class ReportQueue:
     
     def __init__(self):

@@ -1,12 +1,6 @@
-# core/avl_tree.py
-"""
-AVL Tree implementation with custom key K = (P, M, I).
-Includes manual rotation logic and metrics tracking for Section 14.
-All comments are written in English according to project guidelines.
-"""
-
+#avl tree for the events(the node), this is the main tree
 class AVLNode:
-    """Represents a node in the AVL tree holding a seismic Event."""
+    #the real node with value Event
     def __init__(self, event):
         self.event = event
         self.left = None
@@ -15,12 +9,12 @@ class AVLNode:
 
     @property
     def key(self) -> tuple:
-        """Returns the event's key K = (P, M, I)."""
+        #returns the key aka the value of the node
         return self.event.key
 
 
 class AVLTree:
-    """AVL Tree implementation with support for auto-balancing and stress mode."""
+    #avl tree with autobalancing and stress
     def __init__(self):
         self.root = None
         
@@ -31,23 +25,23 @@ class AVLTree:
         self.rl_rotations = 0
 
     def get_height(self, node: AVLNode) -> int:
-        """Returns height of node, or -1 if None (Section 14)."""
+        #get the height of the node, -1 if its none
         return node.height if node else -1
 
     def get_balance_factor(self, node: AVLNode) -> int:
-        """Calculates balance factor: height(left) - height(right)."""
+        #just calculates what node is more valuable than the other, using each node key
         if not node:
             return 0
         return self.get_height(node.left) - self.get_height(node.right)
 
     def update_height(self, node: AVLNode):
-        """Recalculates height of a node based on its children."""
+        #it calculates the height based on the node children
         if node:
             node.height = 1 + max(self.get_height(node.left), self.get_height(node.right))
 
     # --- Rotation Operations ---
     def _rotate_right(self, y: AVLNode) -> AVLNode:
-        """Performs a single right rotation."""
+        #single right rotation
         x = y.left
         T2 = x.right
 
@@ -62,7 +56,7 @@ class AVLTree:
         return x
 
     def _rotate_left(self, x: AVLNode) -> AVLNode:
-        """Performs a single left rotation."""
+        #single left rotation
         y = x.right
         T2 = y.left
 
@@ -76,7 +70,7 @@ class AVLTree:
 
         return y
 
-    # --- Insertion ---
+        #Insertion
     def insert(self, event, auto_balance: bool = True):
         """Inserts a new event into the tree."""
         self.root = self._insert_node(self.root, event, auto_balance)
@@ -129,7 +123,7 @@ class AVLTree:
 
     # --- Deletion ---
     def delete(self, key: tuple, auto_balance: bool = True):
-        """Deletes a node with the given key from the tree."""
+        #deletes node with the given key from it
         self.root = self._delete_node(self.root, key, auto_balance)
 
     def _delete_node(self, node: AVLNode, key: tuple, auto_balance: bool) -> AVLNode:
