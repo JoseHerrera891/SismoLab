@@ -5,71 +5,72 @@ from datetime import datetime
 
 class ReplicaManager:
     """
-    Gestiona las reglas de asociación entre eventos y posibles réplicas (Sección 7 del PDF).
+    Manages the association rules between events and their possible aftershocks
+    (Section 7 of the PDF).
     """
 
     def _init_(self, W_hours: float = 48.0, R_km: float = 40.0):
-        self.W_hours = W_hours  # Ventana de tiempo máxima en horas (Sección 7)
-        self.R_km = R_km  # Distancia euclidiana máxima en km (Sección 7)
+        self.W_hours = W_hours  # Maximum time window in hours (Section 7)
+        self.R_km = R_km  # Maximum Euclidean distance in km (Section 7)
 
     def calculate_distance(
         self, x1: float, y1: float, x2: float, y2: float
     ) -> float:
         """
-        Calcula la distancia euclidiana en el plano 1000x1000 km entre dos epicentros.
+        Calculates the Euclidean distance on the 1000x1000 km plane between two epicenters.
         """
         return math.sqrt((x2 - x1) * 2 + (y2 - y1) * 2)
 
     def get_candidates(self, event_b, all_events: list) -> list:
         """
-        Encuentra todos los eventos A que cumplen los requisitos para ser
-        candidatos a referencia del evento B (Sección 7 del PDF).
+        Finds all event A records that satisfy the requirements to be considered
+        a reference candidate for event B (Section 7 of the PDF).
         """
         candidates = []
 
         for event_a in all_events:
-            # 1. Un evento no se evalúa consigo mismo
+            # 1. An event is never evaluated against itself.
             if event_a.id == event_b.id:
                 continue
 
-            # 2. Magnitud: A debe ser ESTRICTAMENTE MAYOR que B (M_A > M_B)
+            # 2. Magnitude: A must be strictly larger than B (M_A > M_B).
             if event_a.magnitude <= event_b.magnitude:
                 continue
 
-            # 3. Ocurrencia: A debió ocurrir ESTRICTAMENTE ANTES que B
+            # 3. Timing: A must have occurred strictly before B.
             time_diff_seconds = (
                 event_b.timestamp - event_a.timestamp
             ).total_seconds()
             if time_diff_seconds <= 0:
                 continue
 
-            # 4. Ventana de tiempo: La diferencia no debe superar las W horas
+            # 4. Time window: the difference must not exceed W hours.
             time_diff_hours = time_diff_seconds / 3600.0
             if time_diff_hours > self.W_hours:
                 continue
 
-            # 5. Distancia: La distancia entre epicentros no debe superar los R km
+            # 5. Distance: the epicentral distance must not exceed R km.
             dist = self.calculate_distance(
                 event_a.x, event_a.y, event_b.x, event_b.y
             )
             if dist > self.R_km:
                 continue
 
-            # Si superó todos los filtros, es un candidato válido
+            # If it passes every filter, it is a valid candidate.
             candidates.append(event_a)
 
         return candidates
 
     def select_main_reference(self, event_b, candidates: list):
         """
-        Criterio determinista (Sección 7 del PDF):
-        Si hay varios candidatos, selecciona la referencia principal de forma fija:
-        1. El candidato con la MAYOR magnitud.
-        2. En caso de empate en magnitud, el más CERCANO en distancia a B.
-        3. En caso de empate en distancia, el con menor ID numérico.
+        Deterministic selection rule (Section 7 of the PDF):
+        When several candidates are available, the main reference is chosen in a fixed order:
+        1. The candidate with the greatest magnitude.
+        2. If magnitudes tie, the one closest to B.
+        3. If distances tie, the one with the lowest numeric ID.
         """
         if not candidates:
-            return None  # Si no hay candidatos, queda sin asociación
+            return None  # If there are no candidates, the event remains unassociated.
 
         best_candidate = None
         best_magnitude = -1.0
@@ -81,10 +82,10 @@ class ReplicaManager:
                 cand.x, cand.y, event_b.x, event_b.y
             )
 
-            # Criterio de comparación determinista:
-            # - Mayor magnitud gana
-            # - Si empatan en magnitud, menor distancia gana
-            # - Si empatan en distancia, menor ID gana
+            # Deterministic comparison rule:
+            # - Higher magnitude wins
+            # - If tied, shorter distance wins
+            # - If still tied, lower ID wins
             if cand.magnitude > best_magnitude:
                 best_candidate = cand
                 best_magnitude = cand.magnitude
