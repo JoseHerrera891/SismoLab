@@ -1,4 +1,4 @@
-# model for the sismic event and priority (the node)
+# model for the sismic event and priority (value of the node)
 
 class Event:
     def __init__(self, event_id: int, magnitude: float, depth: float, 
