@@ -122,23 +122,42 @@ class MainWindow(QMainWindow):
 
     def _handle_load(self):
         """
-        Loads JSON data and updates map_viewer and tree_viewer graphics.
+        Loads JSON data and updates map_viewer, tree_viewer, and table.
         """
         filepath, _ = QFileDialog.getOpenFileName(
             self, "Open JSON File", "", "JSON Files (*.json)"
         )
         if filepath:
             try:
-                # 1. Cargar la data
+                # 1. Cargar datos
                 data = self.persistence.load_from_json(filepath)
                 if isinstance(data, dict):
                     self.events = data.get("events", [])
                 else:
                     self.events = data
 
-                # 2. REFRESCAR TUS COMPONENTES DE GUI
+                # 2. Refrescar Mapa y Árbol
                 self.map_viewer.set_data(self.events, self.map_manager.zones)
                 self.tree_viewer.populate_tree(self.events, self.replica_manager)
+
+                # 3. Refrescar Tabla de Eventos
+                self.table.setRowCount(len(self.events))
+                for row, ev in enumerate(self.events):
+                    # Soporta tanto objetos Event como diccionarios del JSON
+                    if isinstance(ev, dict):
+                        self.table.setItem(row, 0, QTableWidgetItem(str(ev.get("id", ""))))
+                        self.table.setItem(row, 1, QTableWidgetItem(str(ev.get("x", ""))))
+                        self.table.setItem(row, 2, QTableWidgetItem(str(ev.get("y", ""))))
+                        self.table.setItem(row, 3, QTableWidgetItem(str(ev.get("z", ""))))
+                        self.table.setItem(row, 4, QTableWidgetItem(str(ev.get("magnitude", ""))))
+                        self.table.setItem(row, 5, QTableWidgetItem(str(ev.get("timestamp", ""))))
+                    else:
+                        self.table.setItem(row, 0, QTableWidgetItem(str(ev.id)))
+                        self.table.setItem(row, 1, QTableWidgetItem(str(ev.x)))
+                        self.table.setItem(row, 2, QTableWidgetItem(str(ev.y)))
+                        self.table.setItem(row, 3, QTableWidgetItem(str(ev.z)))
+                        self.table.setItem(row, 4, QTableWidgetItem(str(ev.magnitude)))
+                        self.table.setItem(row, 5, QTableWidgetItem(str(ev.timestamp)))
 
                 QMessageBox.information(
                     self, "Success", f"Loaded {len(self.events)} events successfully!"
