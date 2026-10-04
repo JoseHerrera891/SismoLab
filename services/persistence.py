@@ -1,7 +1,34 @@
 # services/persistence.py
+from dataclasses import dataclass
 from datetime import datetime
 import json
 import os
+
+
+@dataclass
+class Event:
+    """Represents a single seismic event loaded from JSON or created at runtime."""
+    id: str
+    x: float
+    y: float
+    z: float
+    magnitude: float
+    timestamp: datetime
+
+    @classmethod
+    def from_dict(cls, payload: dict):
+        timestamp = payload.get("timestamp")
+        if isinstance(timestamp, str):
+            timestamp = datetime.fromisoformat(timestamp)
+
+        return cls(
+            id=str(payload.get("id", "")),
+            x=float(payload.get("x", 0.0)),
+            y=float(payload.get("y", 0.0)),
+            z=float(payload.get("z", 0.0)),
+            magnitude=float(payload.get("magnitude", 0.0)),
+            timestamp=timestamp,
+        )
 
 
 class Archiver:
@@ -32,7 +59,7 @@ class Auditor:
     Handles system operation logging and audit trails for seismic events.
     """
 
-    def _init_(self, log_filepath: str = "logs/system_audit.log"):
+    def __init__(self, log_filepath: str = "logs/system_audit.log"):
         self.log_filepath = log_filepath
         Archiver.ensure_directory_exists(self.log_filepath)
 
@@ -56,7 +83,7 @@ class PersistenceManager:
     Integrated with Archiver and Auditor services.
     """
 
-    def _init_(self, auditor: Auditor = None):
+    def __init__(self, auditor: Auditor = None):
         self.auditor = auditor or Auditor()
 
     def export_to_json(
@@ -132,7 +159,7 @@ class PersistenceManager:
 
     def load_from_json(self, filepath: str) -> dict:
         """
-        Reads and returns raw dictionary data from a JSON file.
+        Reads a JSON file and converts event dictionaries into structured Event objects.
         """
         if not Archiver.file_exists(filepath):
             self.auditor.log_event(
@@ -142,6 +169,13 @@ class PersistenceManager:
 
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
+
+        if isinstance(data, dict):
+            raw_events = data.get("events", [])
+            data["events"] = [Event.from_dict(event) for event in raw_events]
+
+        elif isinstance(data, list):
+            data = [Event.from_dict(event) for event in data]
 
         self.auditor.log_event(
             "LOAD_JSON",

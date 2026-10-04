@@ -28,10 +28,10 @@ class MainWindow(QMainWindow):
     Integrates 2D map canvas, replica tree, data table, and export/load actions.
     """
 
-    def _init_(self):
-        super()._init_()
+    def __init__(self):
+        super().__init__()
         self.setWindowTitle("Seismic Monitoring System")
-        self.resize(1200, 800)
+        self.resize(1100, 700)
 
         # Initialize backend services
         self.auditor = Auditor()
@@ -39,85 +39,73 @@ class MainWindow(QMainWindow):
         self.replica_manager = ReplicaManager(W_hours=48.0, R_km=40.0)
         self.persistence = PersistenceManager(auditor=self.auditor)
 
-        # In-memory storage for seismic events
         self.events = []
-
-        # Setup GUI layout
         self._init_ui()
 
     def _init_ui(self):
         """
-        Initializes UI layout, controls, map canvas, and replica tree.
+        Initializes UI controls, buttons, map canvas, and table.
         """
-        central_widget = QWidget()
+        central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
         main_layout = QVBoxLayout()
         central_widget.setLayout(main_layout)
 
         # Header Title
-        title_label = QLabel("Seismic Event Dashboard")
+        title_label = QLabel("Seismic Monitoring Dashboard")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet(
-            "font-size: 20px; font-weight: bold; margin: 10px;"
-        )
+        title_label.setStyleSheet("font-size: 18px; font-weight: bold; padding: 5px;")
         main_layout.addWidget(title_label)
 
-        # Control Panel (Buttons)
+        # Top Control Buttons Panel
         button_layout = QHBoxLayout()
 
-        self.btn_export = QPushButton("Export to JSON")
-        self.btn_export.clicked.connect(self._handle_export)
-
-        self.btn_load = QPushButton("Load JSON")
+        self.btn_load = QPushButton("📁 Load JSON")
+        self.btn_load.setStyleSheet("font-size: 14px; padding: 8px;")
         self.btn_load.clicked.connect(self._handle_load)
 
-        button_layout.addWidget(self.btn_export)
-        button_layout.addWidget(self.btn_load)
+        self.btn_export = QPushButton("💾 Export to JSON")
+        self.btn_export.setStyleSheet("font-size: 14px; padding: 8px;")
+        self.btn_export.clicked.connect(self._handle_export)
 
+        button_layout.addWidget(self.btn_load)
+        button_layout.addWidget(self.btn_export)
         main_layout.addLayout(button_layout)
 
-        # Splitter to separate visual components (Map + Tree) and Table
-        content_splitter = QSplitter(Qt.Orientation.Horizontal)
+        # Splitter to hold visual components and table side-by-side
+        splitter = QSplitter(Qt.Orientation.Horizontal)
 
-        # Left panel: Map Canvas & Tree Viewer
-        visual_panel = QWidget()
-        visual_layout = QVBoxLayout()
-        visual_panel.setLayout(visual_layout)
+        # Left Panel (Map + Tree Viewer)
+        left_widget = QWidget()
+        left_layout = QVBoxLayout()
+        left_widget.setLayout(left_layout)
 
         self.map_viewer = MapViewer()
         self.tree_viewer = TreeViewer()
 
-        visual_layout.addWidget(self.map_viewer)
-        visual_layout.addWidget(self.tree_viewer)
+        left_layout.addWidget(self.map_viewer)
+        left_layout.addWidget(self.tree_viewer)
 
-        # Right panel: Data Table
+        # Right Panel (Events Table)
         self.table = QTableWidget()
-        self.table.setColumnCount(7)
+        self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(
-            [
-                "ID",
-                "X (km)",
-                "Y (km)",
-                "Z (km)",
-                "Magnitude",
-                "Populated Zone",
-                "Main Ref ID",
-            ]
+            ["ID", "X (km)", "Y (km)", "Z (km)", "Magnitude", "Timestamp"]
         )
 
-        content_splitter.addWidget(visual_panel)
-        content_splitter.addWidget(self.table)
-        content_splitter.setSizes([600, 600])
+        splitter.addWidget(left_widget)
+        splitter.addWidget(self.table)
+        splitter.setSizes([550, 550])
 
-        main_layout.addWidget(content_splitter)
+        main_layout.addWidget(splitter)
 
     def _handle_export(self):
         """
-        Triggers exporting events into a JSON file using PersistenceManager.
+        Exports current events data to JSON file.
         """
         filepath, _ = QFileDialog.getSaveFileName(
-            self, "Save File", "", "JSON Files (*.json)"
+            self, "Save JSON File", "", "JSON Files (*.json)"
         )
         if filepath:
             success = self.persistence.export_to_json(
@@ -134,27 +122,26 @@ class MainWindow(QMainWindow):
 
     def _handle_load(self):
         """
-        Triggers loading events from a JSON file and refreshes views.
+        Loads JSON data and updates map_viewer and tree_viewer graphics.
         """
         filepath, _ = QFileDialog.getOpenFileName(
-            self, "Open File", "", "JSON Files (*.json)"
+            self, "Open JSON File", "", "JSON Files (*.json)"
         )
         if filepath:
             try:
+                # 1. Cargar la data
                 data = self.persistence.load_from_json(filepath)
+                if isinstance(data, dict):
+                    self.events = data.get("events", [])
+                else:
+                    self.events = data
+
+                # 2. REFRESCAR TUS COMPONENTES DE GUI
+                self.map_viewer.set_data(self.events, self.map_manager.zones)
+                self.tree_viewer.populate_tree(self.events, self.replica_manager)
+
                 QMessageBox.information(
-                    self,
-                    "Success",
-                    f"Loaded {data.get('events_count', 0)} events successfully!",
-                )
-                # Refresh map canvas and tree view
-                self.map_viewer.set_data(
-                    self.events, self.map_manager.zones
-                )
-                self.tree_viewer.populate_tree(
-                    self.events, self.replica_manager
+                    self, "Success", f"Loaded {len(self.events)} events successfully!"
                 )
             except Exception as e:
-                QMessageBox.critical(
-                    self, "Error", f"Failed to load file: {e}"
-                )
+                QMessageBox.critical(self, "Error", f"Failed to load file: {e}")

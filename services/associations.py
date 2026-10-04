@@ -9,7 +9,7 @@ class ReplicaManager:
     (Section 7 of the PDF).
     """
 
-    def _init_(self, W_hours: float = 48.0, R_km: float = 40.0):
+    def __init__(self, W_hours: float = 48.0, R_km: float = 40.0):
         self.W_hours = W_hours  # Maximum time window in hours (Section 7)
         self.R_km = R_km  # Maximum Euclidean distance in km (Section 7)
 

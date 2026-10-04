@@ -9,8 +9,8 @@ class TreeViewer(QWidget):
     and their associated replica hierarchies.
     """
 
-    def _init_(self, parent=None):
-        super()._init_(parent)
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self._init_ui()
 
     def _init_ui(self):

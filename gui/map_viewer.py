@@ -11,7 +11,7 @@ class MapViewer(QWidget):
     """
 
     def __init__(self, parent=None):
-        super()._init_(parent)
+        super().__init__(parent)
         self.setMinimumSize(400, 400)
         self.events = []
         self.populated_zones = []
@@ -31,8 +31,8 @@ class MapViewer(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Draw Background
-        painter.fillRect(self.rect(), QColor("#1e1e1e"))
+        # Draw background
+        painter.fillRect(self.rect(), QColor("#f3f4f6"))
 
         # Map bounds scale (1000x1000 km mapped to widget dimensions)
         width = self.width()
