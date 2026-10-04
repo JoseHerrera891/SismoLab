@@ -1,73 +1,64 @@
-"""
-Explicit Stack and Queue implementations for Undo management and Report Processing.
-All comments are written in English according to project guidelines.
-"""
+#queus and stacks models for report and undo actions
 
 from collections import deque
 
 class UndoStack:
-    """
-    Stack (LIFO - Last In, First Out) for handling undo history (Sections 2 & 13).
-    Stores previous system states or reversible command objects.
-    """
+    #stack for undo, it reverses to a previous state
     def __init__(self):
         self._items = []
 
     def push(self, state):
-        """Pushes a new state onto the top of the stack."""
+        #pushes a new state in the stack
         self._items.append(state)
 
     def pop(self):
-        """Removes and returns the top state from the stack."""
+        #removes and returns the last state in the stack
         if self.is_empty():
-            raise IndexError("Cannot pop from an empty UndoStack.")
+            raise IndexError("Cannot undo. No previous state.")
         return self._items.pop()
 
     def peek(self):
-        """Returns the top element without removing it."""
+        #returns the top state without pop it from the stack
         if self.is_empty():
             return None
         return self._items[-1]
 
+        #normal things, checks if its empty and the size
     def is_empty(self) -> bool:
-        """Checks if the stack is empty."""
         return len(self._items) == 0
 
     def size(self) -> int:
-        """Returns total items in the stack."""
         return len(self._items)
 
     def clear(self):
-        """Clears all history in the stack."""
+        #this clears the stack
         self._items.clear()
 
 
+#resport queue, for processing the events in order
 class ReportQueue:
-    """
-    Queue (FIFO - First In, First Out) for managing incoming report bursts (Sections 2 & 8).
-    Reports are processed strictly in the order they were received.
-    """
+    
     def __init__(self):
         self._items = deque()
 
     def enqueue(self, report_data: dict):
-        """Adds a new incoming report to the end of the queue."""
+        #for adding a new report
         self._items.append(report_data)
 
     def dequeue(self) -> dict:
-        """Removes and returns the oldest report at the front of the queue."""
+        #returns and eliminates the oldest report from the queue
         if self.is_empty():
-            raise IndexError("Cannot dequeue from an empty ReportQueue.")
+            raise IndexError("Cannot process without a report.")
         return self._items.popleft()
 
+    
+        #nomral things again
     def is_empty(self) -> bool:
-        """Checks if there are pending reports in the queue."""
         return len(self._items) == 0
 
     def size(self) -> int:
-        """Returns the number of pending reports."""
         return len(self._items)
 
     def to_list(self) -> list:
-        """Returns a snapshot list of current items for GUI rendering."""
+        #returns a list of the reports in line
         return list(self._items)
