@@ -3,7 +3,6 @@
 from core.event import Event
 
 class EventManager:
-    """Coordinates active events, historical/deleted IDs, and AVL synchronization."""
     def __init__(self, avl_tree):
         self.avl = avl_tree
         self.active_events = {}   # Map: event_id (int) -> Event object
@@ -11,10 +10,7 @@ class EventManager:
         self.archived_events = {} # Map: event_id (int) -> Event object (archived)
 
     def add_event(self, event: Event, auto_balance: bool = True) -> bool:
-        """
-        Registers a new event. 
-        Rejects if the ID was previously deleted or is already active (Section 6).
-        """
+        #registers a new event, if it was deleted previously (by id) or if it is active, cannot be added.
         if event.id in self.active_events or event.id in self.deleted_ids:
             return False
         
@@ -23,10 +19,7 @@ class EventManager:
         return True
 
     def update_event(self, event_id: int, new_data: dict, auto_balance: bool = True) -> bool:
-        """
-        Updates an existing active event.
-        If priority or magnitude changes, the key K changes, requiring node re-insertion.
-        """
+        #modifies and updates the event, then the key also changes and nedd to reinsert in the tree
         if event_id not in self.active_events:
             return False
 
@@ -53,10 +46,7 @@ class EventManager:
         return True
 
     def mark_as_reviewed(self, event_id: int) -> bool:
-        """
-        Marks an event as REVIEWED.
-        Does NOT change key K, so no AVL re-insertion is required (Section 6).
-        """
+        #maks event as reviewed
         if event_id not in self.active_events:
             return False
         
@@ -64,10 +54,7 @@ class EventManager:
         return True
 
     def delete_event(self, event_id: int, auto_balance: bool = True) -> bool:
-        """
-        Deletes an individual event. 
-        Removes it from active catalog and AVL, and records ID as deleted (Section 6).
-        """
+        #deletes an event, pop it from the active event, add the id to the deleted, then delete from the tree
         if event_id not in self.active_events:
             return False
 
@@ -77,5 +64,5 @@ class EventManager:
         return True
 
     def get_event(self, event_id: int) -> Event:
-        """Fast O(1) lookup by event ID."""
+        #get the event id
         return self.active_events.get(event_id, None)
