@@ -1,9 +1,5 @@
 # core/event_manager.py
-"""
-High-level lifecycle management for seismic events (Section 6).
-Handles creation, manual updates, and individual deletions while preserving AVL integrity.
-All comments are written in English according to project guidelines.
-"""
+
 
 from core.event import Event
 
