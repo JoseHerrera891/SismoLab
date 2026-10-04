@@ -129,21 +129,21 @@ class MainWindow(QMainWindow):
         )
         if filepath:
             try:
-                # 1. Cargar datos
+                        # 1. Load the data
                 data = self.persistence.load_from_json(filepath)
                 if isinstance(data, dict):
                     self.events = data.get("events", [])
                 else:
                     self.events = data
 
-                # 2. Refrescar Mapa y Árbol
+                # 2. Refresh the map and tree view
                 self.map_viewer.set_data(self.events, self.map_manager.zones)
                 self.tree_viewer.populate_tree(self.events, self.replica_manager)
 
-                # 3. Refrescar Tabla de Eventos
+                # 3. Refresh the events table
                 self.table.setRowCount(len(self.events))
                 for row, ev in enumerate(self.events):
-                    # Soporta tanto objetos Event como diccionarios del JSON
+                    # Supports both Event objects and JSON dictionaries
                     if isinstance(ev, dict):
                         self.table.setItem(row, 0, QTableWidgetItem(str(ev.get("id", ""))))
                         self.table.setItem(row, 1, QTableWidgetItem(str(ev.get("x", ""))))
