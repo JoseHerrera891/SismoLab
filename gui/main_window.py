@@ -11,26 +11,29 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem,
     QFileDialog,
     QMessageBox,
+    QSplitter,
 )
 from PyQt6.QtCore import Qt
 
 from services.map_manager import MapManager
 from services.associations import ReplicaManager
 from services.persistence import PersistenceManager, Auditor
+from gui.map_viewer import MapViewer
+from gui.tree_viewer import TreeViewer
 
 
 class MainWindow(QMainWindow):
     """
     Main Application Window for the Seismic Monitoring System.
-    Handles UI components and connects backend services with the view.
+    Integrates 2D map canvas, replica tree, data table, and export/load actions.
     """
 
     def _init_(self):
         super()._init_()
         self.setWindowTitle("Seismic Monitoring System")
-        self.resize(1000, 700)
+        self.resize(1200, 800)
 
-        # Initialize backend service instances
+        # Initialize backend services
         self.auditor = Auditor()
         self.map_manager = MapManager()
         self.replica_manager = ReplicaManager(W_hours=48.0, R_km=40.0)
@@ -39,18 +42,16 @@ class MainWindow(QMainWindow):
         # In-memory storage for seismic events
         self.events = []
 
-        # Setup Graphical User Interface components
+        # Setup GUI layout
         self._init_ui()
 
     def _init_ui(self):
         """
-        Initializes layouts, controls, and visual elements of the window.
+        Initializes UI layout, controls, map canvas, and replica tree.
         """
-        # Central widget container
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        # Main layout structure (vertical)
         main_layout = QVBoxLayout()
         central_widget.setLayout(main_layout)
 
@@ -62,7 +63,7 @@ class MainWindow(QMainWindow):
         )
         main_layout.addWidget(title_label)
 
-        # Top Control Panel (Buttons)
+        # Control Panel (Buttons)
         button_layout = QHBoxLayout()
 
         self.btn_export = QPushButton("Export to JSON")
@@ -76,7 +77,21 @@ class MainWindow(QMainWindow):
 
         main_layout.addLayout(button_layout)
 
-        # Events Table
+        # Splitter to separate visual components (Map + Tree) and Table
+        content_splitter = QSplitter(Qt.Orientation.Horizontal)
+
+        # Left panel: Map Canvas & Tree Viewer
+        visual_panel = QWidget()
+        visual_layout = QVBoxLayout()
+        visual_panel.setLayout(visual_layout)
+
+        self.map_viewer = MapViewer()
+        self.tree_viewer = TreeViewer()
+
+        visual_layout.addWidget(self.map_viewer)
+        visual_layout.addWidget(self.tree_viewer)
+
+        # Right panel: Data Table
         self.table = QTableWidget()
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(
@@ -90,11 +105,16 @@ class MainWindow(QMainWindow):
                 "Main Ref ID",
             ]
         )
-        main_layout.addWidget(self.table)
+
+        content_splitter.addWidget(visual_panel)
+        content_splitter.addWidget(self.table)
+        content_splitter.setSizes([600, 600])
+
+        main_layout.addWidget(content_splitter)
 
     def _handle_export(self):
         """
-        Triggers the export functionality to save events into a JSON file.
+        Triggers exporting events into a JSON file using PersistenceManager.
         """
         filepath, _ = QFileDialog.getSaveFileName(
             self, "Save File", "", "JSON Files (*.json)"
@@ -114,7 +134,7 @@ class MainWindow(QMainWindow):
 
     def _handle_load(self):
         """
-        Triggers loading data from an existing JSON file.
+        Triggers loading events from a JSON file and refreshes views.
         """
         filepath, _ = QFileDialog.getOpenFileName(
             self, "Open File", "", "JSON Files (*.json)"
@@ -126,6 +146,13 @@ class MainWindow(QMainWindow):
                     self,
                     "Success",
                     f"Loaded {data.get('events_count', 0)} events successfully!",
+                )
+                # Refresh map canvas and tree view
+                self.map_viewer.set_data(
+                    self.events, self.map_manager.zones
+                )
+                self.tree_viewer.populate_tree(
+                    self.events, self.replica_manager
                 )
             except Exception as e:
                 QMessageBox.critical(
