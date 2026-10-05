@@ -8,8 +8,8 @@ __all__ = [
     "Event",
     "UndoStack",
     "ReportQueue",
-    "NodoAVL",
-    "ArbolAVL",
+    "AVLnode",
+    "AVLtree",
     "EventManager",
     "StressManager",
 ]
