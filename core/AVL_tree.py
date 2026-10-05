@@ -227,44 +227,44 @@ class AVLtree:
         node.setValue(predecessor.getValue())
         self._delete(predecessor, auto_balance)
 
-    def _get_predecessor(self, nodo):
-        actual = nodo.getLeftChild()
+    def _get_predecessor(self, node):
+        actual = node.getLeftChild()
         while actual.getRightChild() is not None:
             actual = actual.getRightChild()
         return actual
 
     # Balance cases
-    def _rebalance_node(self, nodo):
-        fb = self._get_balance_factor(nodo)
+    def _rebalance_node(self, node):
+        fb = self._get_balance_factor(node)
         
         # Case LL
-        if fb > 1 and self._get_balance_factor(nodo.getLeftChild()) >= 0:
+        if fb > 1 and self._get_balance_factor(node.getLeftChild()) >= 0:
             self.ll_rotations += 1
-            return self._rotate_right(nodo)
+            return self._rotate_right(node)
 
         # Case LR
-        if fb > 1 and self._get_balance_factor(nodo.getLeftChild()) < 0:
+        if fb > 1 and self._get_balance_factor(node.getLeftChild()) < 0:
             self.lr_rotations += 1
-            nodo.setLeftChild(self._rotate_left(nodo.getLeftChild()))
-            return self._rotate_right(nodo)
+            node.setLeftChild(self._rotate_left(node.getLeftChild()))
+            return self._rotate_right(node)
 
         # Case RR
-        if fb < -1 and self._get_balance_factor(nodo.getRightChild()) <= 0:
+        if fb < -1 and self._get_balance_factor(node.getRightChild()) <= 0:
             self.rr_rotations += 1
-            return self._rotate_left(nodo)
+            return self._rotate_left(node)
 
         # Case RL
-        if fb < -1 and self._get_balance_factor(nodo.getRightChild()) > 0:
+        if fb < -1 and self._get_balance_factor(node.getRightChild()) > 0:
             self.rl_rotations += 1
-            nodo.setRightChild(self._rotate_right(nodo.getRightChild()))
-            return self._rotate_left(nodo)
+            node.setRightChild(self._rotate_right(node.getRightChild()))
+            return self._rotate_left(node)
 
-        return nodo
+        return node
 
     def _rebalance_ancestors(self, nodo):
-        actual = nodo
-        while actual is not None:
-            self._update_height(actual)
-            siguiente_padre = actual.getFather()
-            self._rebalance_node(actual)
-            actual = siguiente_padre
+        currentNode = nodo
+        while currentNode is not None:
+            self._update_height(currentNode)
+            next_father = currentNode.getFather()
+            self._rebalance_node(currentNode)
+            currentNode = next_father
