@@ -1,22 +1,53 @@
-#avl tree for the events(the node), this is the main tree
-class AVLNode:
-    #the real node with value Event
-    def __init__(self, event):
-        self.event = event
-        self.left = None
-        self.right = None
-        self.height = 0  # Leaf node height starts at 0
+
+class AVLnode:
+    """Represents a node in the AVL tree holding a seismic Event."""
+    def __init__(self, evento):#cambiar a event
+        self.valor = evento  # Contiene el objeto Event # cambiar a value
+        self.altura = 0 #cambiar a height
+        self.hijoIzquierdo = None #cambiar a leftChild
+        self.hijoDerecho = None #cambiar a rightChild
+        self.padre = None #father
+
+    def getValor(self):
+        return self.valor
+
+    def setValor(self, valor): 
+        self.valor = valor
+
+    def getHijoIzquierdo(self):
+        return self.hijoIzquierdo
+
+    def setHijoIzquierdo(self, nodo):
+        self.hijoIzquierdo = nodo
+
+    def getHijoDerecho(self):
+        return self.hijoDerecho
+
+    def setHijoDerecho(self, nodo):
+        self.hijoDerecho = nodo
+
+    def getPadre(self):
+        return self.padre
+
+    def setPadre(self, nodo):
+        self.padre = nodo
+
+    def getAltura(self):
+        return self.altura
+
+    def setAltura(self, h):
+        self.altura = h
 
     @property
     def key(self) -> tuple:
-        #returns the key aka the value of the node
-        return self.event.key
+        """Returns the event's key K = (P, M, I) for BST comparisons."""
+        return self.valor.key
 
 
-class AVLTree:
-    #avl tree with autobalancing and stress
+class AVLtree:
+    """AVL Tree matching instructor's base implementation."""
     def __init__(self):
-        self.root = None
+        self.raiz = None
         
         # Metrics tracking required by Section 14
         self.ll_rotations = 0
@@ -24,155 +55,230 @@ class AVLTree:
         self.lr_rotations = 0
         self.rl_rotations = 0
 
-    def get_height(self, node: AVLNode) -> int:
-        #get the height of the node, -1 if its none
-        return node.height if node else -1
+    # --------------------------------------------------
+    # ALTURA Y FACTOR DE BALANCE
+    # --------------------------------------------------
+    def _altura(self, nodo):
+        if nodo is None:
+            return -1
+        return nodo.getAltura()
 
-    def get_balance_factor(self, node: AVLNode) -> int:
-        #just calculates what node is more valuable than the other, using each node key
-        if not node:
+    def _actualizarAltura(self, nodo):
+        if nodo is not None:
+            alturaIzq = self._altura(nodo.getHijoIzquierdo())
+            alturaDer = self._altura(nodo.getHijoDerecho())
+            nodo.setAltura(1 + max(alturaIzq, alturaDer))
+
+    def _get_balance_factor(self, nodo):
+        if nodo is None:
             return 0
-        return self.get_height(node.left) - self.get_height(node.right)
+        return self._altura(nodo.getHijoIzquierdo()) - self._altura(nodo.getHijoDerecho())
 
-    def update_height(self, node: AVLNode):
-        #it calculates the height based on the node children
-        if node:
-            node.height = 1 + max(self.get_height(node.left), self.get_height(node.right))
+    # --------------------------------------------------
+    # ROTACIONES / GIROS (Adaptados del profesor)
+    # --------------------------------------------------
+    def _giroSimpleDerecha(self, superior):
+        """Single right rotation (LL)."""
+        mitad = superior.getHijoIzquierdo()
+        aux = mitad.getHijoDerecho()
 
-    # --- Rotation Operations ---
-    def _rotate_right(self, y: AVLNode) -> AVLNode:
-        #single right rotation
-        x = y.left
-        T2 = x.right
+        if aux is not None:
+            aux.setPadre(superior)
 
-        # Perform rotation
-        x.right = y
-        y.left = T2
+        mitad.setHijoDerecho(superior)
+        superior.setHijoIzquierdo(aux)
 
-        # Update heights
-        self.update_height(y)
-        self.update_height(x)
+        padre_superior = superior.getPadre()
+        mitad.setPadre(padre_superior)
+        superior.setPadre(mitad)
 
-        return x
-
-    def _rotate_left(self, x: AVLNode) -> AVLNode:
-        #single left rotation
-        y = x.right
-        T2 = y.left
-
-        # Perform rotation
-        y.left = x
-        x.right = T2
-
-        # Update heights
-        self.update_height(x)
-        self.update_height(y)
-
-        return y
-
-        #Insertion
-    def insert(self, event, auto_balance: bool = True):
-        """Inserts a new event into the tree."""
-        self.root = self._insert_node(self.root, event, auto_balance)
-
-    def _insert_node(self, node: AVLNode, event, auto_balance: bool) -> AVLNode:
-        # 1. Standard BST insertion
-        if not node:
-            return AVLNode(event)
-
-        if event.key < node.key:
-            node.left = self._insert_node(node.left, event, auto_balance)
-        elif event.key > node.key:
-            node.right = self._insert_node(node.right, event, auto_balance)
+        if padre_superior is None:
+            self.raiz = mitad
+        elif padre_superior.getHijoIzquierdo() == superior:
+            padre_superior.setHijoIzquierdo(mitad)
         else:
-            return node  # Duplicate keys are not inserted
+            padre_superior.setHijoDerecho(mitad)
 
-        # 2. Update height
-        self.update_height(node)
+        self._actualizarAltura(superior)
+        self._actualizarAltura(mitad)
+        return mitad
 
-        # If auto_balance is False (Stress Mode), skip rotations
-        if not auto_balance:
-            return node
+    def _giroSimpleIzquierda(self, superior):
+        """Single left rotation (RR)."""
+        mitad = superior.getHijoDerecho()
+        aux = mitad.getHijoIzquierdo()
 
-        # 3. Check balance factor and apply rotations if needed
-        balance = self.get_balance_factor(node)
+        if aux is not None:
+            aux.setPadre(superior)
 
-        # Case LL
-        if balance > 1 and event.key < node.left.key:
+        mitad.setHijoIzquierdo(superior)
+        superior.setHijoDerecho(aux)
+
+        padre_superior = superior.getPadre()
+        mitad.setPadre(padre_superior)
+        superior.setPadre(mitad)
+
+        if padre_superior is None:
+            self.raiz = mitad
+        elif padre_superior.getHijoIzquierdo() == superior:
+            padre_superior.setHijoIzquierdo(mitad)
+        else:
+            padre_superior.setHijoDerecho(mitad)
+
+        self._actualizarAltura(superior)
+        self._actualizarAltura(mitad)
+        return mitad
+
+    # --------------------------------------------------
+    # INSERTAR
+    # --------------------------------------------------
+    def insertar(self, evento, auto_balance: bool = True):
+        nodo = NodoAVL(evento)
+        if self.raiz is None:
+            self.raiz = nodo
+            nodo.setPadre(None)
+        else:
+            self._insertar(nodo, self.raiz, auto_balance)
+
+    def _insertar(self, nodo, raizActual, auto_balance: bool):
+        if raizActual.key == nodo.key:
+            return  # Clave duplicada
+
+        if nodo.key < raizActual.key:
+            izq = raizActual.getHijoIzquierdo()
+            if izq is None:
+                raizActual.setHijoIzquierdo(nodo)
+                nodo.setPadre(raizActual)
+            else:
+                self._insertar(nodo, izq, auto_balance)
+        else:
+            der = raizActual.getHijoDerecho()
+            if der is None:
+                raizActual.setHijoDerecho(nodo)
+                nodo.setPadre(raizActual)
+            else:
+                self._insertar(nodo, der, auto_balance)
+
+        self._actualizarAltura(raizActual)
+
+        if auto_balance:
+            self._verificar_y_balancear_nodo(raizActual)
+
+    # --------------------------------------------------
+    # BUSCAR Y ELIMINAR (Basado en la plantilla)
+    # --------------------------------------------------
+    def buscar_por_clave(self, key_tuple):
+        if self.raiz is None:
+            return None
+        return self._buscar(key_tuple, self.raiz)
+
+    def _buscar(self, key_tuple, raizActual):
+        if raizActual is None:
+            return None
+        if key_tuple == raizActual.key:
+            return raizActual
+        if key_tuple < raizActual.key:
+            return self._buscar(key_tuple, raizActual.getHijoIzquierdo())
+        return self._buscar(key_tuple, raizActual.getHijoDerecho())
+
+    def eliminar(self, key_tuple, auto_balance: bool = True):
+        nodo = self.buscar_por_clave(key_tuple)
+        if nodo is not None:
+            self._eliminar(nodo, auto_balance)
+
+    def _eliminar(self, nodo, auto_balance: bool):
+        padre = nodo.getPadre()
+
+        # CASO 1: Es una hoja
+        if nodo.getHijoIzquierdo() is None and nodo.getHijoDerecho() is None:
+            if padre is None:
+                self.raiz = None
+            elif padre.getHijoIzquierdo() == nodo:
+                padre.setHijoIzquierdo(None)
+            else:
+                padre.setHijoDerecho(None)
+            nodo.setPadre(None)
+            if auto_balance and padre:
+                self._revisar_balanceo_ascendente(padre)
+            return
+
+        # CASO 2A: Solo hijo derecho
+        if nodo.getHijoIzquierdo() is None:
+            hijo = nodo.getHijoDerecho()
+            if padre is None:
+                self.raiz = hijo
+                hijo.setPadre(None)
+            else:
+                if padre.getHijoIzquierdo() == nodo:
+                    padre.setHijoIzquierdo(hijo)
+                else:
+                    padre.setHijoDerecho(hijo)
+                hijo.setPadre(padre)
+            if auto_balance and padre:
+                self._revisar_balanceo_ascendente(padre)
+            return
+
+        # CASO 2B: Solo hijo izquierdo
+        if nodo.getHijoDerecho() is None:
+            hijo = nodo.getHijoIzquierdo()
+            if padre is None:
+                self.raiz = hijo
+                hijo.setPadre(None)
+            else:
+                if padre.getHijoIzquierdo() == nodo:
+                    padre.setHijoIzquierdo(hijo)
+                else:
+                    padre.setHijoDerecho(hijo)
+                hijo.setPadre(padre)
+            if auto_balance and padre:
+                self._revisar_balanceo_ascendente(padre)
+            return
+
+        # CASO 3: Dos hijos (Usa el PREDECESOR como en la plantilla del profesor)
+        predecesor = self._getPredecesor(nodo)
+        nodo.setValor(predecesor.getValor())
+        self._eliminar(predecesor, auto_balance)
+
+    def _getPredecesor(self, nodo):
+        actual = nodo.getHijoIzquierdo()
+        while actual.getHijoDerecho() is not None:
+            actual = actual.getHijoDerecho()
+        return actual
+
+    # --------------------------------------------------
+    # CONTROL DE BALANCEO
+    # --------------------------------------------------
+    def _verificar_y_balancear_nodo(self, nodo):
+        fb = self._get_balance_factor(nodo)
+        
+        # Caso LL
+        if fb > 1 and self._get_balance_factor(nodo.getHijoIzquierdo()) >= 0:
             self.ll_rotations += 1
-            return self._rotate_right(node)
+            return self._giroSimpleDerecha(nodo)
 
-        # Case RR
-        if balance < -1 and event.key > node.right.key:
-            self.rr_rotations += 1
-            return self._rotate_left(node)
-
-        # Case LR
-        if balance > 1 and event.key > node.left.key:
+        # Caso LR
+        if fb > 1 and self._get_balance_factor(nodo.getHijoIzquierdo()) < 0:
             self.lr_rotations += 1
-            node.left = self._rotate_left(node.left)
-            return self._rotate_right(node)
+            nodo.setHijoIzquierdo(self._giroSimpleIzquierda(nodo.getHijoIzquierdo()))
+            return self._giroSimpleDerecha(nodo)
 
-        # Case RL
-        if balance < -1 and event.key < node.right.key:
+        # Caso RR
+        if fb < -1 and self._get_balance_factor(nodo.getHijoDerecho()) <= 0:
+            self.rr_rotations += 1
+            return self._giroSimpleIzquierda(nodo)
+
+        # Caso RL
+        if fb < -1 and self._get_balance_factor(nodo.getHijoDerecho()) > 0:
             self.rl_rotations += 1
-            node.right = self._rotate_right(node.right)
-            return self._rotate_left(node)
+            nodo.setHijoDerecho(self._giroSimpleDerecha(nodo.getHijoDerecho()))
+            return self._giroSimpleIzquierda(nodo)
 
-        return node
+        return nodo
 
-    # --- Deletion ---
-    def delete(self, key: tuple, auto_balance: bool = True):
-        #deletes node with the given key from it
-        self.root = self._delete_node(self.root, key, auto_balance)
-
-    def _delete_node(self, node: AVLNode, key: tuple, auto_balance: bool) -> AVLNode:
-        if not node:
-            return node
-
-        # 1. Locate node
-        if key < node.key:
-            node.left = self._delete_node(node.left, key, auto_balance)
-        elif key > node.key:
-            node.right = self._delete_node(node.right, key, auto_balance)
-        else:
-            # Node found
-            if not node.left:
-                return node.right
-            elif not node.right:
-                return node.left
-
-            # Node with two children: get in-order successor (smallest in right subtree)
-            successor = self._get_min_value_node(node.right)
-            node.event = successor.event
-            node.right = self._delete_node(node.right, successor.key, auto_balance)
-
-        if not node:
-            return node
-
-        self.update_height(node)
-
-        if not auto_balance:
-            return node
-
-        # Re-balance after deletion
-        balance = self.get_balance_factor(node)
-
-        if balance > 1 and self.get_balance_factor(node.left) >= 0:
-            return self._rotate_right(node)
-        if balance > 1 and self.get_balance_factor(node.left) < 0:
-            node.left = self._rotate_left(node.left)
-            return self._rotate_right(node)
-        if balance < -1 and self.get_balance_factor(node.right) <= 0:
-            return self._rotate_left(node)
-        if balance < -1 and self.get_balance_factor(node.right) > 0:
-            node.right = self._rotate_right(node.right)
-            return self._rotate_left(node)
-
-        return node
-
-    def _get_min_value_node(self, node: AVLNode) -> AVLNode:
-        current = node
-        while current.left:
-            current = current.left
-        return current
+    def _revisar_balanceo_ascendente(self, nodo):
+        actual = nodo
+        while actual is not None:
+            self._actualizarAltura(actual)
+            siguiente_padre = actual.getPadre()
+            self._verificar_y_balancear_nodo(actual)
+            actual = siguiente_padre
