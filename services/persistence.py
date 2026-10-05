@@ -1,34 +1,9 @@
 # services/persistence.py
-from dataclasses import dataclass
 from datetime import datetime
 import json
 import os
 
-
-@dataclass
-class Event:
-    """Represents a single seismic event loaded from JSON or created at runtime."""
-    id: str
-    x: float
-    y: float
-    z: float
-    magnitude: float
-    timestamp: datetime
-
-    @classmethod
-    def from_dict(cls, payload: dict):
-        timestamp = payload.get("timestamp")
-        if isinstance(timestamp, str):
-            timestamp = datetime.fromisoformat(timestamp)
-
-        return cls(
-            id=str(payload.get("id", "")),
-            x=float(payload.get("x", 0.0)),
-            y=float(payload.get("y", 0.0)),
-            z=float(payload.get("z", 0.0)),
-            magnitude=float(payload.get("magnitude", 0.0)),
-            timestamp=timestamp,
-        )
+from core.event import Event
 
 
 class Archiver:
@@ -113,13 +88,14 @@ class PersistenceManager:
                     "id": event.id,
                     "x": event.x,
                     "y": event.y,
-                    "z": event.z,
+                    "z": event.depth,
                     "magnitude": event.magnitude,
                     "timestamp": (
                         event.timestamp.isoformat()
                         if isinstance(event.timestamp, datetime)
                         else str(event.timestamp)
                     ),
+                    "station": event.station,
                     "is_in_populated_zone": is_populated,
                     "main_reference_id": main_ref.id if main_ref else None,
                     "candidate_ids": [c.id for c in candidates],
@@ -172,13 +148,30 @@ class PersistenceManager:
 
         if isinstance(data, dict):
             raw_events = data.get("events", [])
-            data["events"] = [Event.from_dict(event) for event in raw_events]
+            data["events"] = [self._event_from_dict(event) for event in raw_events]
 
         elif isinstance(data, list):
-            data = [Event.from_dict(event) for event in data]
+            data = [self._event_from_dict(event) for event in data]
 
         self.auditor.log_event(
             "LOAD_JSON",
             f"Successfully loaded data from {filepath}",
         )
         return data
+
+    @staticmethod
+    def _event_from_dict(payload: dict) -> Event:
+        """Build the core event model from current and legacy JSON field names."""
+        return Event(
+            event_id=payload["id"],
+            magnitude=payload["magnitude"],
+            depth=payload["depth"] if "depth" in payload else payload["z"],
+            x=payload["x"],
+            y=payload["y"],
+            timestamp=payload["timestamp"],
+            station=payload.get("station", ""),
+            is_populated=payload.get(
+                "is_in_populated_zone", payload.get("is_populated", False)
+            ),
+            revision=payload.get("revision", 1),
+        )

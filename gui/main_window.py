@@ -15,14 +15,15 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QMessageBox,
     QSplitter,
+    QAbstractItemView,
 )
 from PyQt6.QtCore import Qt
+from datetime import datetime
 
-from services.map_manager import MapManager
-from services.associations import ReplicaManager
-from services.persistence import PersistenceManager, Auditor
+from core.event import Event
 from gui.map_viewer import MapViewer
 from gui.tree_viewer import TreeViewer
+from sismolab_controller import SismoLabController
 
 
 class MainWindow(QMainWindow):
@@ -33,13 +34,16 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Seismic Monitoring Dashboard")
         self.resize(1450, 850)
 
-        self.auditor = Auditor()
-        self.map_manager = MapManager()
-        self.replica_manager = ReplicaManager(W_hours=48.0, R_km=40.0)
-        self.persistence = PersistenceManager(auditor=self.auditor)
-        self.events = []
+        self.controller = SismoLabController()
+        self.map_manager = self.controller.map_manager
+        self.replica_manager = self.controller.replica_manager
+        self.persistence = self.controller.persistence
 
         self._init_ui()
+
+    @property
+    def events(self):
+        return self.controller.events
 
     def _init_ui(self):
         central_widget = QWidget(self)
@@ -76,6 +80,15 @@ class MainWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(
             ["ID", "X (km)", "Y (km)", "Z (km)", "Magnitude", "Timestamp"]
         )
+        self.table.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectRows
+        )
+        self.table.setSelectionMode(
+            QAbstractItemView.SelectionMode.SingleSelection
+        )
+        self.table.itemSelectionChanged.connect(
+            self._load_selected_event_into_form
+        )
 
         controls_panel = QWidget()
         self.controls_layout = QVBoxLayout(controls_panel)
@@ -96,8 +109,13 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(QLabel("Event ID:"))
         self.txt_id = QLineEdit()
-        self.txt_id.setPlaceholderText("Example: EVT-102")
+        self.txt_id.setPlaceholderText("Example: SIS-000010")
         layout.addWidget(self.txt_id)
+
+        layout.addWidget(QLabel("Reporting station:"))
+        self.txt_station = QLineEdit()
+        self.txt_station.setPlaceholderText("Station name or code")
+        layout.addWidget(self.txt_station)
 
         self.spn_x = self._make_spin_box(0, 1000, "Coordinate X (km):")
         layout.addWidget(self.spn_x)
@@ -111,6 +129,8 @@ class MainWindow(QMainWindow):
         form_actions = QHBoxLayout()
         self.btn_insert = QPushButton("Add Event")
         self.btn_update = QPushButton("Update Event")
+        self.btn_insert.clicked.connect(self._handle_insert)
+        self.btn_update.clicked.connect(self._handle_update)
         form_actions.addWidget(self.btn_insert)
         form_actions.addWidget(self.btn_update)
         layout.addLayout(form_actions)
@@ -129,8 +149,11 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(group)
 
         self.btn_delete = QPushButton("Delete Selected Event")
+        self.btn_delete.clicked.connect(self._handle_delete)
         self.btn_undo = QPushButton("Undo Last Action")
+        self.btn_undo.clicked.connect(self._handle_undo)
         self.btn_stress = QPushButton("Start Stress Simulation")
+        self.btn_stress.clicked.connect(self._handle_stress)
         self.btn_stress.setStyleSheet(
             "background-color: #d9534f; color: white; font-weight: bold;"
         )
@@ -179,7 +202,8 @@ class MainWindow(QMainWindow):
 
         try:
             data = self.persistence.load_from_json(filepath)
-            self.events = data.get("events", []) if isinstance(data, dict) else data
+            events = data.get("events", []) if isinstance(data, dict) else data
+            self.controller.replace_events(events)
             self._refresh_event_views()
             self.log_message(f"Loaded {len(self.events)} events from {filepath}")
             QMessageBox.information(
@@ -188,19 +212,157 @@ class MainWindow(QMainWindow):
         except Exception as error:
             QMessageBox.critical(self, "Error", f"Failed to load file: {error}")
 
-    def _refresh_event_views(self):
-        self.map_viewer.set_data(self.events, self.map_manager.zones)
-        self.tree_viewer.populate_tree(self.events, self.replica_manager)
-        self.table.setRowCount(len(self.events))
+    def _handle_insert(self):
+        try:
+            station = self.txt_station.text().strip()
+            if not station:
+                raise ValueError("Enter the reporting station.")
 
-        for row, event in enumerate(self.events):
+            event = Event(
+                event_id=self.txt_id.text(),
+                magnitude=self.spn_mag.value(),
+                depth=self.spn_z.value(),
+                x=self.spn_x.value(),
+                y=self.spn_y.value(),
+                timestamp=datetime.now(),
+                station=station,
+                is_populated=self.map_manager.is_in_populated_zone(
+                    self.spn_x.value(), self.spn_y.value()
+                ),
+            )
+            result = self.controller.register_event_report(event)
+
+            if result == "created":
+                self.log_message(f"Added {event.display_id} from station {station}")
+            elif result == "station_added":
+                self.log_message(
+                    f"Added station {station} to report for {event.display_id}"
+                )
+            elif result == "duplicate":
+                QMessageBox.warning(
+                    self,
+                    "Duplicate report",
+                    f"Station {station} has already reported {event.display_id}.",
+                )
+                return
+            else:
+                QMessageBox.warning(
+                    self,
+                    "Unavailable ID",
+                    f"{event.display_id} is already reserved and cannot be reused.",
+                )
+                return
+
+            self._refresh_event_views()
+        except (TypeError, ValueError) as error:
+            QMessageBox.warning(self, "Invalid event", str(error))
+
+    def _selected_event_id(self):
+        selected_rows = self.table.selectionModel().selectedRows()
+        if not selected_rows:
+            QMessageBox.warning(
+                self, "No event selected", "Select an event in the table first."
+            )
+            return None
+
+        id_item = self.table.item(selected_rows[0].row(), 0)
+        return id_item.data(Qt.ItemDataRole.UserRole)
+
+    def _load_selected_event_into_form(self):
+        selected_rows = self.table.selectionModel().selectedRows()
+        if not selected_rows:
+            return
+
+        event_id = self.table.item(selected_rows[0].row(), 0).data(
+            Qt.ItemDataRole.UserRole
+        )
+        event = self.controller.event_manager.get_event(event_id)
+        if event is None:
+            return
+
+        self.txt_id.setText(event.display_id)
+        self.spn_x.setValue(event.x)
+        self.spn_y.setValue(event.y)
+        self.spn_z.setValue(event.depth)
+        self.spn_mag.setValue(event.magnitude)
+        self.txt_station.setText(event.station)
+
+    def _handle_update(self):
+        event_id = self._selected_event_id()
+        if event_id is None:
+            return
+
+        new_data = {
+            "x": self.spn_x.value(),
+            "y": self.spn_y.value(),
+            "depth": self.spn_z.value(),
+            "magnitude": self.spn_mag.value(),
+            "is_populated": self.map_manager.is_in_populated_zone(
+                self.spn_x.value(), self.spn_y.value()
+            ),
+        }
+        if self.controller.update_event(event_id, new_data):
+            self.log_message(f"Updated SIS-{event_id:06d}")
+            self._refresh_event_views()
+        else:
+            QMessageBox.warning(self, "Event not found", "The selected event no longer exists.")
+
+    def _handle_delete(self):
+        event_id = self._selected_event_id()
+        if event_id is None:
+            return
+
+        if self.controller.delete_event(event_id):
+            self.log_message(f"Deleted SIS-{event_id:06d}")
+            self._refresh_event_views()
+        else:
+            QMessageBox.warning(self, "Event not found", "The selected event no longer exists.")
+
+    def _handle_stress(self):
+        if not self.controller.stress_manager.is_stress_mode:
+            self.controller.stress_manager.enable_stress_mode()
+            self.btn_stress.setText("Finish Stress Simulation")
+            self.log_message("Stress simulation started; automatic rotations paused.")
+            return
+
+        rotations = self.controller.stress_manager.recover_avl_balance()
+        self.btn_stress.setText("Start Stress Simulation")
+        self.log_message(f"Stress simulation finished; performed {rotations} rotations.")
+        self._refresh_event_views()
+
+    def _handle_undo(self):
+        if not self.controller.undo():
+            QMessageBox.information(
+                self, "Nothing to undo", "There are no event changes to undo."
+            )
+            return
+
+        self.log_message("Undid the last event change.")
+        self._refresh_event_views()
+
+    def _refresh_event_views(self):
+        events = self.events
+        self.map_viewer.set_data(events, self.map_manager.zones)
+        self.tree_viewer.populate_tree(events, self.replica_manager)
+        self.table.setRowCount(len(events))
+        if hasattr(self, "btn_stress"):
+            self.btn_stress.setText(
+                "Finish Stress Simulation"
+                if self.controller.stress_manager.is_stress_mode
+                else "Start Stress Simulation"
+            )
+
+        for row, event in enumerate(events):
             values = (
-                event.id,
+                event.display_id,
                 event.x,
                 event.y,
-                event.z,
+                event.depth,
                 event.magnitude,
                 event.timestamp,
             )
             for column, value in enumerate(values):
-                self.table.setItem(row, column, QTableWidgetItem(str(value)))
+                item = QTableWidgetItem(str(value))
+                if column == 0:
+                    item.setData(Qt.ItemDataRole.UserRole, event.id)
+                self.table.setItem(row, column, item)

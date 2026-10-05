@@ -57,7 +57,7 @@ class TreeViewer(QWidget):
         # Render Tree Nodes
         for main_ev in main_events:
             root_item = QTreeWidgetItem([
-                str(main_ev.id),
+                main_ev.display_id,
                 f"M {main_ev.magnitude}",
                 f"({main_ev.x}, {main_ev.y}, {main_ev.z})",
                 str(main_ev.timestamp)
@@ -67,7 +67,7 @@ class TreeViewer(QWidget):
             if main_ev.id in replicas_by_main:
                 for replica in replicas_by_main[main_ev.id]:
                     child_item = QTreeWidgetItem([
-                        f"Replica: {replica.id}",
+                        f"Replica: {replica.display_id}",
                         f"M {replica.magnitude}",
                         f"({replica.x}, {replica.y}, {replica.z})",
                         str(replica.timestamp)

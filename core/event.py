@@ -1,34 +1,70 @@
-# model for the sismic event and priority (value of the node)
+from datetime import datetime
 
+
+# model for the seismic event and priority (value of the node)
 class Event:
-    def __init__(self, event_id: int, magnitude: float, depth: float, 
-                 x: float, y: float, timestamp: str, station: str, 
+    def __init__(self, event_id: int, magnitude: float, depth: float,
+                 x: float, y: float, timestamp, station: str = "",
                  is_populated: bool = False, revision: int = 1):
-        
-        # first of all, we confirm the values before putting them.
-        self._validate_inputs(event_id, magnitude, depth, x, y)
-        
-        # atributes based on what we think the node need to have.
-        self.id = int(event_id)
+
+        self._id = self._normalize_event_id(event_id)
         self.magnitude = round(float(magnitude), 1)
         self.depth = round(float(depth), 1)
         self.x = round(float(x), 1)
         self.y = round(float(y), 1)
-        self.timestamp = timestamp  # Format ISO 8601, each node has the time is was created
+        if isinstance(timestamp, str):
+            timestamp = datetime.fromisoformat(timestamp)
+        if not isinstance(timestamp, datetime):
+            raise TypeError("Timestamp must be a datetime or an ISO 8601 string.")
+        self.timestamp = timestamp
         self.station = station
         self.is_populated = is_populated
         self.revision = int(revision)
-        
+
+        self._validate_inputs(
+            self.id, self.magnitude, self.depth, self.x, self.y
+        )
+
         # Status can be 'PENDING' or 'REVIEWED'
         self.status = "PENDING"
-        
+
         # Set of stations that have reported this accepted event
-        self.accepted_stations = {station}
-        
-        # we set the priority based on the condition (section 4)
+        self.accepted_stations = {station} if station else set()
+
         self.priority = self.calculate_priority()
 
-    def _validate_inputs(self, event_id: int, magnitude: float, depth: float, x: float, y: float):
+    @staticmethod
+    def _normalize_event_id(event_id) -> int:
+        """Accept numeric IDs and formatted SIS IDs, plus legacy EVT IDs."""
+        if isinstance(event_id, bool):
+            raise ValueError("Event ID must be an integer between 1 and 999999.")
+
+        if isinstance(event_id, str):
+            event_id = event_id.strip()
+            prefix = event_id[:4].upper()
+            if prefix in ("SIS-", "EVT-"):
+                event_id = event_id[4:]
+            if not event_id.isdigit():
+                raise ValueError("Event ID must be numeric or use SIS-000001 format.")
+            event_id = int(event_id)
+        elif not isinstance(event_id, int):
+            raise ValueError("Event ID must be an integer between 1 and 999999.")
+
+        return event_id
+
+    @property
+    def id(self) -> int:
+        """Numeric, read-only identifier used for event comparisons."""
+        return self._id
+
+    @property
+    def display_id(self) -> str:
+        """Zero-padded identifier for display, e.g. ``SIS-000010``."""
+        return f"SIS-{self.id:06d}"
+
+    @staticmethod
+    def _validate_inputs(event_id: int, magnitude: float, depth: float,
+                         x: float, y: float):
         """Validates input ranges as specified in Section 3."""
         if not (1 <= event_id <= 999999):
             raise ValueError("Event ID must be an integer between 1 and 999999.")
@@ -52,11 +88,17 @@ class Event:
             return 2
         return 1
 
-    # here we create the lexicographic key 
     @property
     def key(self) -> tuple:
-        
         return (self.priority, self.magnitude, self.id)
-    # and return the basic info about the event
+
+    @property
+    def z(self) -> float:
+        """Compatibility alias for views and JSON using the name ``z``."""
+        return self.depth
+
     def __repr__(self):
-        return f"Event(SIS-{self.id:06d}, Key={self.key}, Status={self.status})"
+        return f"Event({self.display_id}, Key={self.key}, Status={self.status})"
+
+    def __str__(self):
+        return self.display_id
