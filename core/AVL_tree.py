@@ -133,7 +133,7 @@ class AVLtree:
     # INSERTAR
     # --------------------------------------------------
     def insertar(self, evento, auto_balance: bool = True):
-        nodo = NodoAVL(evento)
+        nodo = AVLnode(evento)
         if self.raiz is None:
             self.raiz = nodo
             nodo.setPadre(None)
