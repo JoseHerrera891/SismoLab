@@ -43,7 +43,7 @@ class AVLnode:
 
 class AVLtree:
     def __init__(self):
-        self.raiz = None
+        self.root = None
         
         # Metrics tracking
         self.ll_rotations = 0
@@ -70,7 +70,6 @@ class AVLtree:
 
     # Rotations
     def _rotate_right(self, sup):
-        """Single right rotation (LL)."""
         middle = sup.getLeftChild()
         aux = middle.getRightChild()
 
@@ -85,7 +84,7 @@ class AVLtree:
         sup.setFather(middle)
 
         if sup_father is None:
-            self.raiz = middle
+            self.root = middle
         elif sup_father.getLeftChild() == sup:
             sup_father.setLeftChild(middle)
         else:
@@ -96,7 +95,6 @@ class AVLtree:
         return middle
 
     def _rotate_left(self, sup):
-        """Single left rotation (RR)."""
         middle = sup.getRightChild()
         aux = middle.getLeftChild()
 
@@ -111,7 +109,7 @@ class AVLtree:
         sup.setFather(middle)
 
         if sup_father is None:
-            self.raiz = middle
+            self.root = middle
         elif sup_father.getLeftChild() == sup:
             sup_father.setLeftChild(middle)
         else:
@@ -124,11 +122,11 @@ class AVLtree:
     # insert
     def insert(self, event, auto_balance: bool = True):
         node = AVLnode(event)
-        if self.raiz is None:
-            self.raiz = node
+        if self.root is None:
+            self.root = node
             node.setFather(None)
         else:
-            self._insert(node, self.raiz, auto_balance)
+            self._insert(node, self.root, auto_balance)
 
     def _insert(self, node, currentRoot, auto_balance: bool):
         if currentRoot.key == node.key:
@@ -156,9 +154,9 @@ class AVLtree:
 
     # search and eliminate
     def search_by_key(self, key_tuple):
-        if self.raiz is None:
+        if self.root is None:
             return None
-        return self._search(key_tuple, self.raiz)
+        return self._search(key_tuple, self.root)
 
     def _search(self, key_tuple, currentRoot):
         if currentRoot is None:
@@ -180,7 +178,7 @@ class AVLtree:
         # Case 1. leaf
         if node.getLeftChild() is None and node.getRightChild() is None:
             if father is None:
-                self.raiz = None
+                self.root = None
             elif father.getLeftChild() == node:
                 father.setLeftChild(None)
             else:
@@ -194,7 +192,7 @@ class AVLtree:
         if node.getLeftChild() is None:
             child = node.getRightChild()
             if father is None:
-                self.raiz = child
+                self.root = child
                 child.setFather(None)
             else:
                 if father.getLeftChild() == node:
@@ -210,7 +208,7 @@ class AVLtree:
         if node.getRightChild() is None:
             child = node.getLeftChild()
             if father is None:
-                self.raiz = child
+                self.root = child
                 child.setFather(None)
             else:
                 if father.getLeftChild() == node:
@@ -228,10 +226,10 @@ class AVLtree:
         self._delete(predecessor, auto_balance)
 
     def _get_predecessor(self, node):
-        actual = node.getLeftChild()
-        while actual.getRightChild() is not None:
-            actual = actual.getRightChild()
-        return actual
+        currentNode = node.getLeftChild()
+        while currentNode.getRightChild() is not None:
+            currentNode = currentNode.getRightChild()
+        return currentNode
 
     # Balance cases
     def _rebalance_node(self, node):
