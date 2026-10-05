@@ -1,6 +1,4 @@
-
 class AVLnode:
-    """Represents a node in the AVL tree holding a seismic Event."""
     def __init__(self, event):
         self.value = event
         self.height = 0
@@ -40,203 +38,193 @@ class AVLnode:
 
     @property
     def key(self) -> tuple:
-        """Returns the event's key K = (P, M, I) for BST comparisons."""
         return self.value.key
 
 
 class AVLtree:
-    """AVL Tree matching instructor's base implementation."""
     def __init__(self):
         self.raiz = None
         
-        # Metrics tracking required by Section 14
+        # Metrics tracking
         self.ll_rotations = 0
         self.rr_rotations = 0
         self.lr_rotations = 0
         self.rl_rotations = 0
 
-    # --------------------------------------------------
-    # ALTURA Y FACTOR DE BALANCE
-    # --------------------------------------------------
+    # Auto balance
     def _height(self, node):
         if node is None:
             return -1
         return node.getHeight()
 
-    def _update_height(self, nodo):
-        if nodo is not None:
-            leftHeight = self._height(nodo.getLeftChild())
-            rightHeight = self._height(nodo.getRightChild())
-            nodo.setHeight(1 + max(leftHeight, rightHeight))
+    def _update_height(self, node):
+        if node is not None:
+            leftHeight = self._height(node.getLeftChild())
+            rightHeight = self._height(node.getRightChild())
+            node.setHeight(1 + max(leftHeight, rightHeight))
 
-    def _get_balance_factor(self, nodo):
-        if nodo is None:
+    def _get_balance_factor(self, node):
+        if node is None:
             return 0
-        return self._height(nodo.getLeftChild()) - self._height(nodo.getRightChild())
+        return self._height(node.getLeftChild()) - self._height(node.getRightChild())
 
-    # --------------------------------------------------
-    # ROTACIONES / GIROS (Adaptados del profesor)
-    # --------------------------------------------------
-    def _rotate_right(self, superior):
+    # Rotations
+    def _rotate_right(self, sup):
         """Single right rotation (LL)."""
-        mitad = superior.getLeftChild()
-        aux = mitad.getRightChild()
+        middle = sup.getLeftChild()
+        aux = middle.getRightChild()
 
         if aux is not None:
-            aux.setFather(superior)
+            aux.setFather(sup)
 
-        mitad.setRightChild(superior)
-        superior.setLeftChild(aux)
+        middle.setRightChild(sup)
+        sup.setLeftChild(aux)
 
-        padre_superior = superior.getFather()
-        mitad.setFather(padre_superior)
-        superior.setFather(mitad)
+        sup_father = sup.getFather()
+        middle.setFather(sup_father)
+        sup.setFather(middle)
 
-        if padre_superior is None:
-            self.raiz = mitad
-        elif padre_superior.getLeftChild() == superior:
-            padre_superior.setLeftChild(mitad)
+        if sup_father is None:
+            self.raiz = middle
+        elif sup_father.getLeftChild() == sup:
+            sup_father.setLeftChild(middle)
         else:
-            padre_superior.setRightChild(mitad)
+            sup_father.setRightChild(middle)
 
-        self._update_height(superior)
-        self._update_height(mitad)
-        return mitad
+        self._update_height(sup)
+        self._update_height(middle)
+        return middle
 
-    def _rotate_left(self, superior):
+    def _rotate_left(self, sup):
         """Single left rotation (RR)."""
-        mitad = superior.getRightChild()
-        aux = mitad.getLeftChild()
+        middle = sup.getRightChild()
+        aux = middle.getLeftChild()
 
         if aux is not None:
-            aux.setFather(superior)
+            aux.setFather(sup)
 
-        mitad.setLeftChild(superior)
-        superior.setRightChild(aux)
+        middle.setLeftChild(sup)
+        sup.setRightChild(aux)
 
-        padre_superior = superior.getFather()
-        mitad.setFather(padre_superior)
-        superior.setFather(mitad)
+        sup_father = sup.getFather()
+        middle.setFather(sup_father)
+        sup.setFather(middle)
 
-        if padre_superior is None:
-            self.raiz = mitad
-        elif padre_superior.getLeftChild() == superior:
-            padre_superior.setLeftChild(mitad)
+        if sup_father is None:
+            self.raiz = middle
+        elif sup_father.getLeftChild() == sup:
+            sup_father.setLeftChild(middle)
         else:
-            padre_superior.setRightChild(mitad)
+            sup_father.setRightChild(middle)
 
-        self._update_height(superior)
-        self._update_height(mitad)
-        return mitad
+        self._update_height(sup)
+        self._update_height(middle)
+        return middle
 
-    # --------------------------------------------------
-    # INSERTAR
-    # --------------------------------------------------
+    # insert
     def insert(self, event, auto_balance: bool = True):
-        nodo = AVLnode(event)
+        node = AVLnode(event)
         if self.raiz is None:
-            self.raiz = nodo
-            nodo.setFather(None)
+            self.raiz = node
+            node.setFather(None)
         else:
-            self._insert(nodo, self.raiz, auto_balance)
+            self._insert(node, self.raiz, auto_balance)
 
-    def _insert(self, nodo, raizActual, auto_balance: bool):
-        if raizActual.key == nodo.key:
+    def _insert(self, node, currentRoot, auto_balance: bool):
+        if currentRoot.key == node.key:
             return  # Clave duplicada
 
-        if nodo.key < raizActual.key:
-            izq = raizActual.getLeftChild()
-            if izq is None:
-                raizActual.setLeftChild(nodo)
-                nodo.setFather(raizActual)
+        if node.key < currentRoot.key:
+            left = currentRoot.getLeftChild()
+            if left is None:
+                currentRoot.setLeftChild(node)
+                node.setFather(currentRoot)
             else:
-                self._insert(nodo, izq, auto_balance)
+                self._insert(node, left, auto_balance)
         else:
-            der = raizActual.getRightChild()
-            if der is None:
-                raizActual.setRightChild(nodo)
-                nodo.setFather(raizActual)
+            right = currentRoot.getRightChild()
+            if right is None:
+                currentRoot.setRightChild(node)
+                node.setFather(currentRoot)
             else:
-                self._insert(nodo, der, auto_balance)
+                self._insert(node, right, auto_balance)
 
-        self._update_height(raizActual)
+        self._update_height(currentRoot)
 
         if auto_balance:
-            self._rebalance_node(raizActual)
+            self._rebalance_node(currentRoot)
 
-    # --------------------------------------------------
-    # BUSCAR Y ELIMINAR (Basado en la plantilla)
-    # --------------------------------------------------
+    # search and eliminate
     def search_by_key(self, key_tuple):
         if self.raiz is None:
             return None
         return self._search(key_tuple, self.raiz)
 
-    def _search(self, key_tuple, raizActual):
-        if raizActual is None:
+    def _search(self, key_tuple, currentRoot):
+        if currentRoot is None:
             return None
-        if key_tuple == raizActual.key:
-            return raizActual
-        if key_tuple < raizActual.key:
-            return self._search(key_tuple, raizActual.getLeftChild())
-        return self._search(key_tuple, raizActual.getRightChild())
+        if key_tuple == currentRoot.key:
+            return currentRoot
+        if key_tuple < currentRoot.key:
+            return self._search(key_tuple, currentRoot.getLeftChild())
+        return self._search(key_tuple, currentRoot.getRightChild())
 
     def delete(self, key_tuple, auto_balance: bool = True):
-        nodo = self.search_by_key(key_tuple)
-        if nodo is not None:
-            self._delete(nodo, auto_balance)
+        node = self.search_by_key(key_tuple)
+        if node is not None:
+            self._delete(node, auto_balance)
 
-    def _delete(self, nodo, auto_balance: bool):
-        padre = nodo.getFather()
+    def _delete(self, node, auto_balance: bool):
+        father = node.getFather()
 
-        # CASO 1: Es una hoja
-        if nodo.getLeftChild() is None and nodo.getRightChild() is None:
-            if padre is None:
+        # Case 1. leaf
+        if node.getLeftChild() is None and node.getRightChild() is None:
+            if father is None:
                 self.raiz = None
-            elif padre.getLeftChild() == nodo:
-                padre.setLeftChild(None)
+            elif father.getLeftChild() == node:
+                father.setLeftChild(None)
             else:
-                padre.setRightChild(None)
-            nodo.setFather(None)
-            if auto_balance and padre:
-                self._rebalance_ancestors(padre)
+                father.setRightChild(None)
+            node.setFather(None)
+            if auto_balance and father:
+                self._rebalance_ancestors(father)
             return
 
-        # CASO 2A: Solo hijo derecho
-        if nodo.getLeftChild() is None:
-            hijo = nodo.getRightChild()
-            if padre is None:
-                self.raiz = hijo
-                hijo.setFather(None)
+        # Case 2. only right child
+        if node.getLeftChild() is None:
+            child = node.getRightChild()
+            if father is None:
+                self.raiz = child
+                child.setFather(None)
             else:
-                if padre.getLeftChild() == nodo:
-                    padre.setLeftChild(hijo)
+                if father.getLeftChild() == node:
+                    father.setLeftChild(child)
                 else:
-                    padre.setRightChild(hijo)
-                hijo.setFather(padre)
-            if auto_balance and padre:
-                self._rebalance_ancestors(padre)
+                    father.setRightChild(child)
+                child.setFather(father)
+            if auto_balance and father:
+                self._rebalance_ancestors(father)
             return
 
-        # CASO 2B: Solo hijo izquierdo
-        if nodo.getRightChild() is None:
-            hijo = nodo.getLeftChild()
-            if padre is None:
-                self.raiz = hijo
-                hijo.setFather(None)
+        # Case 3. only left child
+        if node.getRightChild() is None:
+            child = node.getLeftChild()
+            if father is None:
+                self.raiz = child
+                child.setFather(None)
             else:
-                if padre.getLeftChild() == nodo:
-                    padre.setLeftChild(hijo)
+                if father.getLeftChild() == node:
+                    father.setLeftChild(child)
                 else:
-                    padre.setRightChild(hijo)
-                hijo.setFather(padre)
-            if auto_balance and padre:
-                self._rebalance_ancestors(padre)
+                    father.setRightChild(child)
+                child.setFather(father)
+            if auto_balance and father:
+                self._rebalance_ancestors(father)
             return
 
-        # CASO 3: Dos hijos (Usa el PREDECESOR como en la plantilla del profesor)
-        predecessor = self._get_predecessor(nodo)
-        nodo.setValue(predecessor.getValue())
+        # Case 4. two childs
+        predecessor = self._get_predecessor(node)
+        node.setValue(predecessor.getValue())
         self._delete(predecessor, auto_balance)
 
     def _get_predecessor(self, nodo):
@@ -245,29 +233,27 @@ class AVLtree:
             actual = actual.getRightChild()
         return actual
 
-    # --------------------------------------------------
-    # CONTROL DE BALANCEO
-    # --------------------------------------------------
+    # Balance cases
     def _rebalance_node(self, nodo):
         fb = self._get_balance_factor(nodo)
         
-        # Caso LL
+        # Case LL
         if fb > 1 and self._get_balance_factor(nodo.getLeftChild()) >= 0:
             self.ll_rotations += 1
             return self._rotate_right(nodo)
 
-        # Caso LR
+        # Case LR
         if fb > 1 and self._get_balance_factor(nodo.getLeftChild()) < 0:
             self.lr_rotations += 1
             nodo.setLeftChild(self._rotate_left(nodo.getLeftChild()))
             return self._rotate_right(nodo)
 
-        # Caso RR
+        # Case RR
         if fb < -1 and self._get_balance_factor(nodo.getRightChild()) <= 0:
             self.rr_rotations += 1
             return self._rotate_left(nodo)
 
-        # Caso RL
+        # Case RL
         if fb < -1 and self._get_balance_factor(nodo.getRightChild()) > 0:
             self.rl_rotations += 1
             nodo.setRightChild(self._rotate_right(nodo.getRightChild()))
