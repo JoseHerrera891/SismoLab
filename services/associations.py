@@ -19,7 +19,8 @@ class ReplicaManager:
         """
         Calculates the Euclidean distance on the 1000x1000 km plane between two epicenters.
         """
-        return math.sqrt((x2 - x1) * 2 + (y2 - y1) * 2)
+        return math.hypot(x2 - x1, y2 - y1)
+        #return math.sqrt((x2 - x1) * 2 + (y2 - y1) * 2)
 
     def get_candidates(self, event_b, all_events: list) -> list:
         """
