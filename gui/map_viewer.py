@@ -46,30 +46,49 @@ class MapViewer(QWidget):
             painter.drawLine(int(x), 0, int(x), height)
             painter.drawLine(0, int(y), width, int(y))
 
-        # 2. Draw Populated Zones
-        painter.setPen(QPen(QColor("#ff9900"), 1))
-        painter.setBrush(QBrush(QColor(255, 153, 0, 40)))  # Semi-transparent orange
-
+        # 2. Draw zones, using different colors for populated and unpopulated areas.
         for zone in self.populated_zones:
             # Scale coordinates from km to pixels
-            px = (zone.x / 1000.0) * width
-            py = (zone.y / 1000.0) * height
-            pr = (zone.radius / 1000.0) * width
+            px = (zone.x_min / 1000.0) * width
+            py = (zone.y_min / 1000.0) * height
+            zone_width = ((zone.x_max - zone.x_min) / 1000.0) * width
+            zone_height = ((zone.y_max - zone.y_min) / 1000.0) * height
 
-            painter.drawEllipse(QRectF(px - pr, py - pr, pr * 2, pr * 2))
+            if zone.is_populated:
+                zone_color = QColor("#ff9900")
+            else:
+                zone_color = QColor("#607d8b")
+            painter.setPen(QPen(zone_color, 1))
+            fill_color = QColor(zone_color)
+            fill_color.setAlpha(40)
+            painter.setBrush(QBrush(fill_color))
+            painter.drawRect(QRectF(px, py, zone_width, zone_height))
+            painter.setPen(QPen(zone_color, 1))
+            painter.drawText(int(px + 4), int(py + 16), zone.name)
 
         # 3. Draw Seismic Events (Epicenters)
-        painter.setPen(QPen(QColor("#ffffff"), 1))
+        priority_colors = {
+            1: "#4da6ff",
+            2: "#ffd24d",
+            3: "#ff4d4d",
+        }
+        base_radius = 6
+        priority_radius_adjustments = {
+            1: -2,
+            2: 0,
+            3: 3,
+        }
 
         for ev in self.events:
             px = (ev.x / 1000.0) * width
             py = (ev.y / 1000.0) * height
 
-            # Color based on magnitude
-            if ev.magnitude >= 5.0:
-                painter.setBrush(QBrush(QColor("#ff4d4d")))  # Red for high mag
-            else:
-                painter.setBrush(QBrush(QColor("#4da6ff")))  # Blue for low mag
+            color = QColor(priority_colors[ev.priority])
+            outline_width = 4 if ev.priority == 3 else 2
+            painter.setPen(QPen(color, outline_width))
+            fill_color = QColor(color)
+            fill_color.setAlpha(100)
+            painter.setBrush(QBrush(fill_color))
 
-            radius = max(3, int(ev.magnitude * 2))
+            radius = base_radius + priority_radius_adjustments[ev.priority]
             painter.drawEllipse(QRectF(px - radius, py - radius, radius * 2, radius * 2))
