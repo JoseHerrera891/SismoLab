@@ -16,7 +16,7 @@ from core.bst_tree import measure_tree
 
 
 class AVLCanvas(QWidget):
-    """Scrollable graphical view of the live AVL tree."""
+    #canvas with tree and nodes
 
     NODE_WIDTH = 96
     NODE_HEIGHT = 58
@@ -35,7 +35,7 @@ class AVLCanvas(QWidget):
         self.root = root
         self.positions = {}
         self.edges = []
-
+        #sets root and its properties
         inorder_nodes = []
         max_depth = 0
         stack = []
@@ -79,7 +79,7 @@ class AVLCanvas(QWidget):
 
     def sizeHint(self):
         return self.minimumSize()
-
+        #paint event node
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -97,7 +97,7 @@ class AVLCanvas(QWidget):
         painter.setPen(QPen(QColor("#64748b"), 2))
         for parent, child in self.edges:
             painter.drawLine(self.positions[parent], self.positions[child])
-
+        #same as the map, the tree has 3 color for the 3 priorities
         priority_colors = {
             1: QColor("#4da6ff"),
             2: QColor("#d39b00"),
@@ -144,7 +144,7 @@ class AVLCanvas(QWidget):
 
 
 class TreeViewer(QWidget):
-    """Button that opens both live tree visualizations in a separate window."""
+    #opens the two tress in a separate window
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -173,7 +173,7 @@ class TreeViewer(QWidget):
         self._tree_window.show()
         self._tree_window.raise_()
         self._tree_window.activateWindow()
-
+        #the real function of this file, load the avl and bst tree from core and uses it to show the graphcis trees
     def _create_tree_window(self):
         self._tree_window = QDialog(self)
         self._tree_window.setWindowTitle("AVL, BST and Replica Hierarchy")
@@ -230,7 +230,7 @@ class TreeViewer(QWidget):
         self.avl_metrics_label = None
         self.bst_metrics_label = None
         self.replica_tree = None
-
+        #this triggers only when a change is done in the event list, modifi it, eliminate, etc.
     def _refresh_tree_window(self):
         if self._tree_window is None:
             return
@@ -287,7 +287,7 @@ class TreeViewer(QWidget):
         self.replica_tree.expandAll()
 
     @staticmethod
-    def _set_metrics_label(label, root):
+    def _set_metrics_label(label, root): #this shows the metric at the end of the program
         metrics = measure_tree(root)
         label.setText(
             f"Nodes: {metrics['nodes']} | Height: {metrics['height']} | "
@@ -298,7 +298,7 @@ class TreeViewer(QWidget):
     def populate_tree(
         self, events: list, replica_manager, avl_root=None, bst_root=None
     ):
-        """Store the latest data and refresh the separate window if it is open."""
+        #store de last data and puts it on the tree
         self._events = list(events)
         self._replica_manager = replica_manager
         self._avl_root = avl_root
