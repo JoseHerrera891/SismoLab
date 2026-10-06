@@ -7,42 +7,32 @@ import tempfile
 from core.event import Event
 
 
+# handles file operations and directory management
 class Archiver:
-    """
-    Handles file system operations, path validations, and directory management.
-    """
 
     @staticmethod
     def ensure_directory_exists(filepath: str) -> None:
-        """
-        Ensures that the directory for a given filepath exists.
-        Creates it if it does not exist.
-        """
+        # create the parent directory when it does not exist
         dirname = os.path.dirname(filepath)
         if dirname and not os.path.exists(dirname):
             os.makedirs(dirname)
 
     @staticmethod
     def file_exists(filepath: str) -> bool:
-        """
-        Checks if a file exists at the specified path.
-        """
+        # check whether the given path exists
         return os.path.exists(filepath)
 
 
+# handles system operation logging and audit trails
 class Auditor:
-    """
-    Handles system operation logging and audit trails for seismic events.
-    """
 
     def __init__(self, log_filepath: str = "logs/system_audit.log"):
+        # prepare the audit log location
         self.log_filepath = log_filepath
         Archiver.ensure_directory_exists(self.log_filepath)
 
     def log_event(self, action: str, details: str) -> None:
-        """
-        Logs a system action with an ISO timestamp into the audit file.
-        """
+        # append an action and timestamp to the audit file
         timestamp = datetime.now().isoformat()
         log_entry = f"[{timestamp}] ACTION: {action} | DETAILS: {details}\n"
 
@@ -53,17 +43,16 @@ class Auditor:
             print(f"Failed to write audit log: {e}")
 
 
+# manages scenario import and export in JSON format
 class PersistenceManager:
-    """
-    Handles system state export and import operations in JSON format.
-    Integrated with Archiver and Auditor services.
-    """
 
     def __init__(self, auditor: Auditor = None):
+        # use the supplied auditor or create a default one
         self.auditor = auditor or Auditor()
 
     @staticmethod
     def _event_to_dict(event: Event) -> dict:
+        # convert an event into its JSON-compatible representation
         return {
             "id": event.id,
             "magnitude": event.magnitude,
@@ -80,7 +69,7 @@ class PersistenceManager:
         }
 
     def save_scenario(self, controller, filepath: str, version_name: str = "") -> None:
-        """Atomically save the complete operational state and current topology."""
+        # save the complete state and tree topology atomically
         nodes = []
         stack = [controller.tree.root] if controller.tree.root is not None else []
         while stack:
@@ -180,15 +169,14 @@ class PersistenceManager:
 
     @staticmethod
     def _require_list(data: dict, field: str) -> list:
+        # validate that a scenario field contains a list
         value = data.get(field)
         if not isinstance(value, list):
             raise ValueError(f"Scenario field '{field}' must be a list.")
         return value
 
     def load_from_json(self, filepath: str) -> dict:
-        """
-        Reads a JSON file and converts event dictionaries into structured Event objects.
-        """
+        # load JSON data and convert event records into Event objects
         if not Archiver.file_exists(filepath):
             self.auditor.log_event(
                 "LOAD_ERROR", f"File not found at {filepath}"
@@ -227,7 +215,7 @@ class PersistenceManager:
 
     @staticmethod
     def _event_from_dict(payload: dict) -> Event:
-        """Build the core event model from current and legacy JSON field names."""
+        # build an Event from current or legacy JSON field names
         revision = payload.get("revision", 1)
         if (
             isinstance(revision, bool)
