@@ -4,17 +4,15 @@ from datetime import datetime
 
 
 class ReplicaManager:
-    """
-    Manages the association rules between events and their possible aftershocks
-    (Section 7 of the PDF).
-    """
+    # manages association rules between events and possible aftershocks
 
     def __init__(self, W_hours: float = 48.0, R_km: float = 40.0):
+        # set maximum time and distance limits for associations
         self.W_hours = W_hours  # Maximum time window in hours (Section 7)
         self.R_km = R_km  # Maximum Euclidean distance in km (Section 7)
 
     def configure(self, W_hours: float, R_km: float) -> None:
-        """Set the maximum time and distance limits for event associations."""
+        # update the time and distance limits after validating them
         if (
             not math.isfinite(W_hours)
             or not math.isfinite(R_km)
@@ -30,17 +28,12 @@ class ReplicaManager:
     def calculate_distance(
         self, x1: float, y1: float, x2: float, y2: float
     ) -> float:
-        """
-        Calculates the Euclidean distance on the 1000x1000 km plane between two epicenters.
-        """
+        # calculate the Euclidean distance between two epicenters
         return math.hypot(x2 - x1, y2 - y1)
         #return math.sqrt((x2 - x1) * 2 + (y2 - y1) * 2)
 
     def get_candidates(self, event_b, all_events: list) -> list:
-        """
-        Finds all event A records that satisfy the requirements to be considered
-        a reference candidate for event B (Section 7 of the PDF).
-        """
+        # find events that meet the reference criteria for event_b
         candidates = []
 
         for event_a in all_events:
@@ -77,13 +70,7 @@ class ReplicaManager:
         return candidates
 
     def select_main_reference(self, event_b, candidates: list):
-        """
-        Deterministic selection rule (Section 7 of the PDF):
-        When several candidates are available, the main reference is chosen in a fixed order:
-        1. The candidate with the greatest magnitude.
-        2. If magnitudes tie, the one closest to B.
-        3. If distances tie, the one with the lowest numeric ID.
-        """
+        # choose by highest magnitude, then shortest distance, then lowest ID
         if not candidates:
             return None  # If there are no candidates, the event remains unassociated.
 
