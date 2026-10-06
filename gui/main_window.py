@@ -40,6 +40,7 @@ class MainWindow(QMainWindow):
         self.persistence = self.controller.persistence
 
         self._init_ui()
+        self._refresh_event_views()
 
     @property
     def events(self):
@@ -107,11 +108,6 @@ class MainWindow(QMainWindow):
         group = QGroupBox("Event Management")
         layout = QVBoxLayout(group)
 
-        layout.addWidget(QLabel("Event ID:"))
-        self.txt_id = QLineEdit()
-        self.txt_id.setPlaceholderText("Example: SIS-000010")
-        layout.addWidget(self.txt_id)
-
         layout.addWidget(QLabel("Reporting station:"))
         self.txt_station = QLineEdit()
         self.txt_station.setPlaceholderText("Station name or code")
@@ -148,8 +144,19 @@ class MainWindow(QMainWindow):
         group = QGroupBox("System Operations")
         layout = QVBoxLayout(group)
 
+        search_layout = QHBoxLayout()
+        self.txt_search_id = QLineEdit()
+        self.txt_search_id.setPlaceholderText("Numeric event ID")
+        self.btn_search = QPushButton("Search")
+        self.btn_search.clicked.connect(self._handle_search)
+        self.txt_search_id.returnPressed.connect(self._handle_search)
+        search_layout.addWidget(self.txt_search_id)
+        search_layout.addWidget(self.btn_search)
+
         self.btn_delete = QPushButton("Delete Selected Event")
         self.btn_delete.clicked.connect(self._handle_delete)
+        self.btn_review = QPushButton("Mark as Reviewed")
+        self.btn_review.clicked.connect(self._handle_mark_reviewed)
         self.btn_undo = QPushButton("Undo Last Action")
         self.btn_undo.clicked.connect(self._handle_undo)
         self.btn_stress = QPushButton("Start Stress Simulation")
@@ -158,6 +165,8 @@ class MainWindow(QMainWindow):
             "background-color: #d9534f; color: white; font-weight: bold;"
         )
 
+        layout.addLayout(search_layout)
+        layout.addWidget(self.btn_review)
         layout.addWidget(self.btn_delete)
         layout.addWidget(self.btn_undo)
         layout.addWidget(self.btn_stress)
@@ -219,7 +228,7 @@ class MainWindow(QMainWindow):
                 raise ValueError("Enter the reporting station.")
 
             event = Event(
-                event_id=self.txt_id.text(),
+                event_id=self.controller.generate_event_id(),
                 magnitude=self.spn_mag.value(),
                 depth=self.spn_z.value(),
                 x=self.spn_x.value(),
@@ -268,6 +277,47 @@ class MainWindow(QMainWindow):
         id_item = self.table.item(selected_rows[0].row(), 0)
         return id_item.data(Qt.ItemDataRole.UserRole)
 
+    def _handle_search(self):
+        raw_event_id = self.txt_search_id.text().strip()
+        if not raw_event_id.isdigit():
+            QMessageBox.warning(
+                self, "Invalid ID", "Enter a numeric event ID."
+            )
+            return
+
+        details = self.controller.get_event_search_details(int(raw_event_id))
+        if details is None:
+            QMessageBox.information(
+                self, "Event not found", f"No event with ID {raw_event_id}."
+            )
+            return
+
+        event = details["event"]
+        access_label = (
+            "Yes"
+            if details["access_costly"]
+            else "No"
+        )
+        QMessageBox.information(
+            self,
+            f"Event {event.display_id}",
+            "\n".join(
+                (
+                    f"Magnitude: {event.magnitude}",
+                    f"Depth: {event.depth} km",
+                    f"Coordinates: ({event.x}, {event.y}) km",
+                    f"Station: {event.station}",
+                    f"Priority: {event.priority}",
+                    f"Status: {event.status}",
+                    f"Revision: {event.revision}",
+                    f"AVL depth: {details['depth']}",
+                    f"Search comparisons: {details['comparisons']}",
+                    f"Costly access: {access_label} "
+                    f"(threshold: {details['cost_threshold']})",
+                )
+            ),
+        )
+
     def _load_selected_event_into_form(self):
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
@@ -280,7 +330,6 @@ class MainWindow(QMainWindow):
         if event is None:
             return
 
-        self.txt_id.setText(event.display_id)
         self.spn_x.setValue(event.x)
         self.spn_y.setValue(event.y)
         self.spn_z.setValue(event.depth)
@@ -306,6 +355,21 @@ class MainWindow(QMainWindow):
             self._refresh_event_views()
         else:
             QMessageBox.warning(self, "Event not found", "The selected event no longer exists.")
+
+    def _handle_mark_reviewed(self):
+        event_id = self._selected_event_id()
+        if event_id is None:
+            return
+
+        if self.controller.mark_event_as_reviewed(event_id):
+            self.log_message(f"Marked SIS-{event_id:06d} as reviewed")
+            self._refresh_event_views()
+        else:
+            QMessageBox.information(
+                self,
+                "Event already reviewed",
+                "The selected event is already reviewed or no longer exists.",
+            )
 
     def _handle_delete(self):
         event_id = self._selected_event_id()
