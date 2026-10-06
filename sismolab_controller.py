@@ -1,4 +1,6 @@
 from copy import deepcopy
+import math
+from pathlib import Path
 
 from core.AVL_tree import AVLtree
 from core.event_manager import EventManager
@@ -20,6 +22,8 @@ class SismoLabController:
         self.report_queue = ReportQueue()
 
         self.map_manager = MapManager()
+        zones_file = Path(__file__).resolve().parent / "test_zones.json"
+        self.map_manager.load_zones(zones_file)
         self.replica_manager = ReplicaManager()
         self.auditor = Auditor()
         self.persistence = PersistenceManager(self.auditor)
@@ -27,6 +31,17 @@ class SismoLabController:
     @property
     def events(self):
         return list(self.event_manager.active_events.values())
+
+    def generate_event_id(self) -> int:
+        """Return the next ID after all active or permanently deleted events."""
+        occupied_ids = (
+            set(self.event_manager.active_events)
+            | self.event_manager.deleted_ids
+        )
+        next_id = max(occupied_ids, default=0) + 1
+        if next_id > 999999:
+            raise ValueError("No more event IDs are available.")
+        return next_id
 
     def replace_events(self, events: list[Event]) -> None:
         """Replace the current scenario with events loaded from a data source."""
@@ -106,6 +121,53 @@ class SismoLabController:
             )
 
         return updated
+
+    def get_event_search_details(self, event_id: int) -> dict | None:
+        """Return an event and AVL search metrics, or None when it is absent."""
+        event = self.event_manager.get_event(event_id)
+        if event is None:
+            return None
+
+        node = self.tree.root
+        comparisons = 0
+        while node is not None:
+            comparisons += 1
+            if event.key == node.key:
+                break
+            if event.key < node.key:
+                node = node.getLeftChild()
+            else:
+                node = node.getRightChild()
+
+        if node is None:
+            raise RuntimeError(
+                f"Active event SIS-{event_id:06d} is missing from the AVL tree."
+            )
+
+        expected_comparisons = math.ceil(
+            math.log2(len(self.event_manager.active_events) + 1)
+        )
+        return {
+            "event": event,
+            "depth": comparisons,
+            "comparisons": comparisons,
+            "access_costly": comparisons > expected_comparisons,
+            "cost_threshold": expected_comparisons,
+        }
+
+    def mark_event_as_reviewed(self, event_id: int) -> bool:
+        event = self.event_manager.get_event(event_id)
+        if event is None or event.status == "REVIEWED":
+            return False
+
+        self.undo_stack.push(deepcopy(self.events))
+        reviewed = self.event_manager.mark_as_reviewed(event_id)
+        if reviewed:
+            self.auditor.log_event(
+                "MARK_REVIEWED",
+                f"Marked event SIS-{event_id:06d} as reviewed",
+            )
+        return reviewed
 
     def delete_event(self, event_id: int) -> bool:
         if self.event_manager.get_event(event_id) is None:
