@@ -37,7 +37,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         #set title and size
         self.setWindowTitle("Seismic Monitoring Dashboard")
-        self.resize(1450, 20)
+        self.resize(1450, 900)
+        self.setMinimumSize(1100, 720)
 
         #create controller and managers
         self.controller = SismoLabController()
@@ -63,8 +64,13 @@ class MainWindow(QMainWindow):
 
         title_label = QLabel("Seismic Monitoring Dashboard")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("font-size: 18px; font-weight: bold; padding: 5px;")
+        title_label.setStyleSheet(
+            "font-size: 18px; font-weight: bold; padding: 0px; margin: 0px;"
+        )
+        title_label.setContentsMargins(0, 0, 0, 0)
+        title_label.setFixedHeight(title_label.sizeHint().height())
         main_layout.addWidget(title_label)
+        main_layout.setSpacing(6)
         #initiation of main buttons
         file_actions = QHBoxLayout()
         self.btn_load = QPushButton("Load JSON / Restore Version")
@@ -80,6 +86,7 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(file_actions)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.setChildrenCollapsible(False)
         #initiation of the trees and map
         visualization_panel = QWidget()
         visualization_layout = QVBoxLayout(visualization_panel)
@@ -129,7 +136,10 @@ class MainWindow(QMainWindow):
         splitter.addWidget(self.table)
         splitter.addWidget(controls_scroll)
         splitter.setSizes([470, 470, 380])
-        main_layout.addWidget(splitter)
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 1)
+        splitter.setStretchFactor(2, 1)
+        main_layout.addWidget(splitter, 1)
 
     def setup_event_form(self):
         #event management section
