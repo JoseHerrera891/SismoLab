@@ -2,7 +2,7 @@ from core.event import Event
 
 
 class BSTNode:
-    """Store one event and the links used by the comparison BST."""
+    #store the events used in avl
 
     def __init__(self, event: Event):
         self.value = event
@@ -37,7 +37,7 @@ class BSTNode:
 
 
 class BinarySearchTree:
-    """Build an unbalanced BST from events for comparison with the AVL."""
+    #unbalanced bst tree made with the nodes in avl
 
     def __init__(self, events=()):
         self.root = None
@@ -45,7 +45,7 @@ class BinarySearchTree:
             self.insert(event)
 
     def insert(self, event: Event) -> bool:
-        """Insert an event by its (priority, magnitude, ID) key."""
+        #insert by key
         node = BSTNode(event)
         if self.root is None:
             self.root = node
@@ -71,7 +71,7 @@ class BinarySearchTree:
             current = child
 
     def search_by_key(self, key: tuple) -> BSTNode | None:
-        """Return the node with the requested key, if it exists."""
+        #returns the node by key
         current = self.root
         while current is not None:
             if key == current.key:
@@ -84,7 +84,7 @@ class BinarySearchTree:
         return None
 
     def search_comparisons(self, key: tuple) -> int:
-        """Return the number of nodes visited while searching for a key."""
+        #returns the number of comparisons while searching the node
         comparisons = 0
         current = self.root
         while current is not None:
@@ -99,12 +99,12 @@ class BinarySearchTree:
         return comparisons
 
     def metrics(self) -> dict:
-        """Return structural metrics and average successful-search cost."""
+        #returns metrics and cost
         return measure_tree(self.root)
 
 
 def measure_tree(root) -> dict:
-    """Measure a BST or AVL without changing its nodes or stored heights."""
+    #measure the tree properties
     if root is None:
         return {
             "nodes": 0,
