@@ -33,23 +33,29 @@ class MainWindow(QMainWindow):
     #main dashboard fot the seismic monitoring system
     #set window size
     def __init__(self):
+        #initialize main window
         super().__init__()
+        #set title and size
         self.setWindowTitle("Seismic Monitoring Dashboard")
         self.resize(1450, 20)
 
+        #create controller and managers
         self.controller = SismoLabController()
         self.map_manager = self.controller.map_manager
         self.replica_manager = self.controller.replica_manager
         self.persistence = self.controller.persistence
 
+        #load interface and refresh data
         self._init_ui()
         self._refresh_event_views()
 
     @property
     def events(self):
+        #return active event list
         return self.controller.events
 
     def _init_ui(self):
+        #initialize main dashboard layout
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
@@ -104,7 +110,7 @@ class MainWindow(QMainWindow):
         self.table.itemSelectionChanged.connect(
             self._load_selected_event_into_form
         )
-
+        #set panels to input (event management, avl and bst trees, arrhive, report queue)
         controls_panel = QWidget()
         self.controls_layout = QVBoxLayout(controls_panel)
         self.setup_event_form()
@@ -126,9 +132,10 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(splitter)
 
     def setup_event_form(self):
+        #event management section
         group = QGroupBox("Event Management")
         layout = QVBoxLayout(group)
-
+        #set and label inputs for event management
         layout.addWidget(QLabel("Reporting station:"))
         self.txt_station = QLineEdit()
         self.txt_station.setPlaceholderText("Station name or code")
@@ -154,23 +161,24 @@ class MainWindow(QMainWindow):
         self.controls_layout.addWidget(group)
 
     def setup_association_settings(self):
+        #association settings section
         group = QGroupBox("Replica Association Settings")
         layout = QVBoxLayout(group)
-
+        #system setting for W and R (hours and distance between events to determinate if replica or not)
         self.spn_association_hours = self._make_spin_box(
             0, 100000, "W: Time window (hours)", 1
         )
-        self.spn_association_hours.setValue(48)
+        self.spn_association_hours.setValue(48)#default
         layout.addWidget(self.spn_association_hours)
 
         self.spn_association_distance = self._make_spin_box(
             0, 100000, "R: Maximum distance (km)", 1
         )
-        self.spn_association_distance.setValue(40)
+        self.spn_association_distance.setValue(40)#default
         layout.addWidget(self.spn_association_distance)
 
         self.btn_apply_association_settings = QPushButton(
-            "Apply Association Settings"
+            "Apply Association Settings" #button to apply settings
         )
         self.btn_apply_association_settings.clicked.connect(
             self._handle_apply_association_settings
@@ -179,16 +187,17 @@ class MainWindow(QMainWindow):
         self.controls_layout.addWidget(group)
 
     def setup_report_queue_panel(self):
+        #report queue section
         group = QGroupBox("Station Report FIFO")
         layout = QVBoxLayout(group)
         fields = QGridLayout()
-
+        #set and input labels for queue 
         self.spn_report_id = QSpinBox()
         self.spn_report_id.setRange(1, 999999)
         self.spn_report_revision = QSpinBox()
         self.spn_report_revision.setRange(1, 999999)
         self.txt_report_station = QLineEdit()
-        self.txt_report_station.setPlaceholderText("Station name or code")
+        self.txt_report_station.setPlaceholderText("Station name...")
         self.dt_report_timestamp = QDateTimeEdit()
         self.dt_report_timestamp.setDateTime(
             QDateTime.fromSecsSinceEpoch(
@@ -221,7 +230,7 @@ class MainWindow(QMainWindow):
         fields.addWidget(self.spn_report_x, 6, 0, 1, 2)
         fields.addWidget(self.spn_report_y, 7, 0, 1, 2)
         layout.addLayout(fields)
-
+        #lable to see the report queue
         self.report_queue_table = QTableWidget()
         self.report_queue_table.setColumnCount(3)
         self.report_queue_table.setHorizontalHeaderLabels(
@@ -232,7 +241,7 @@ class MainWindow(QMainWindow):
         )
         self.report_queue_table.setMaximumHeight(105)
         layout.addWidget(self.report_queue_table)
-
+        #buttons for process the queue
         actions = QHBoxLayout()
         self.btn_enqueue_report = QPushButton("Queue Report")
         self.btn_enqueue_report.clicked.connect(self._handle_enqueue_report)
@@ -244,17 +253,18 @@ class MainWindow(QMainWindow):
         self.controls_layout.addWidget(group)
 
     def setup_clock_archive_panel(self):
+        #simulation clock and archive section
         group = QGroupBox("Simulation Clock and Archive")
         layout = QVBoxLayout(group)
         self.lbl_simulation_clock = QLabel()
         layout.addWidget(self.lbl_simulation_clock)
-
+        #set label inputs for simulation clock
         clock_controls = QHBoxLayout()
         self.spn_clock_advance = self._make_spin_box(
             0.1, 100000, "Advance (hours)", 1
         )
         self.spn_clock_advance.setValue(24)
-        self.btn_advance_clock = QPushButton("Advance clock")
+        self.btn_advance_clock = QPushButton("Advance clock")#simulate pass of time
         self.btn_advance_clock.clicked.connect(self._handle_advance_clock)
         clock_controls.addWidget(self.spn_clock_advance)
         clock_controls.addWidget(self.btn_advance_clock)
@@ -262,7 +272,7 @@ class MainWindow(QMainWindow):
 
         threshold_controls = QHBoxLayout()
         self.spn_archive_threshold = self._make_spin_box(
-            0.1, 100000, "T (hours)", 1
+            0.1, 100000, "T (hours)", 1 #how many units to add in series (if 500 then N + 500)
         )
         self.spn_archive_threshold.setValue(
             self.controller.archive_age_threshold_hours
@@ -274,7 +284,7 @@ class MainWindow(QMainWindow):
         threshold_controls.addWidget(self.spn_archive_threshold)
         threshold_controls.addWidget(self.btn_apply_archive_threshold)
         layout.addLayout(threshold_controls)
-
+        #archive set and buttons
         archive_actions = QHBoxLayout()
         self.btn_archive_branch = QPushButton("Archive eligible branch")
         self.btn_archive_branch.clicked.connect(self._handle_archive_branch)
@@ -287,6 +297,7 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _make_spin_box(minimum, maximum, label, step=1.0):
+        #create numeric field for settings
         field = QDoubleSpinBox()
         field.setRange(minimum, maximum)
         field.setSingleStep(step)
@@ -294,6 +305,7 @@ class MainWindow(QMainWindow):
         return field
 
     def setup_actions_panel(self):
+        #general operations section
         group = QGroupBox("System Operations")
         layout = QVBoxLayout(group)
 
@@ -342,6 +354,7 @@ class MainWindow(QMainWindow):
         self.controls_layout.addWidget(group)
 
     def setup_query_audit_panel(self):
+        #query and audit section
         group = QGroupBox("Queries and Structural Audit")
         layout = QVBoxLayout(group)
 
@@ -413,6 +426,7 @@ class MainWindow(QMainWindow):
         self.controls_layout.addWidget(group)
 
     def setup_audit_panel(self):
+        #audit log and metrics section
         group = QGroupBox("Audit Log and Metrics")
         layout = QVBoxLayout(group)
 
@@ -432,10 +446,12 @@ class MainWindow(QMainWindow):
         self.controls_layout.addWidget(group)
 
     def log_message(self, message: str):
+        #add message to audit log
         self.txt_audit_log.append(f"> {message}")
 
     @staticmethod
     def _format_query_events(events):
+        #format event list for query display
         return "\n".join(
             (
                 f"{event.display_id} | M{event.magnitude:.1f} | "
@@ -446,6 +462,7 @@ class MainWindow(QMainWindow):
         ) or "No matching events."
 
     def _show_query_result(self, title, result, events_key="events"):
+        #show query result
         events = result[events_key]
         message = (
             self._format_query_events(events)
@@ -454,6 +471,7 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, title, message)
 
     def _handle_verify_structure(self):
+        #verify the AVL structure and update status
         result = self.controller.verify_structure()
         status = (
             "Structure valid"
@@ -494,6 +512,7 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "AVL audit", "\n".join(details))
 
     def _handle_show_traversals(self):
+        #show tree traversal results
         metrics = self.controller.get_dashboard_metrics()
         traversal_text = []
         for traversal_name, events in metrics["traversals"].items():
@@ -506,15 +525,18 @@ class MainWindow(QMainWindow):
         )
 
     def _handle_query_top_pending(self):
+        #query the highest-priority pending events
         try:
             result = self.controller.query_top_pending(
                 self.spn_query_count.value()
             )
             self._show_query_result("Top pending events", result)
         except (TypeError, ValueError, RuntimeError) as error:
+            #show query error
             QMessageBox.warning(self, "Query failed", str(error))
 
     def _handle_query_magnitude_range(self):
+        #query events by magnitude range
         try:
             result = self.controller.query_magnitude_range(
                 self.spn_query_min_magnitude.value(),
@@ -522,9 +544,11 @@ class MainWindow(QMainWindow):
             )
             self._show_query_result("Events by magnitude", result)
         except (TypeError, ValueError, RuntimeError) as error:
+            #show query error
             QMessageBox.warning(self, "Query failed", str(error))
 
     def _handle_query_shallow_events(self):
+        #query shallow events within a date range
         try:
             result = self.controller.query_shallow_events_by_date(
                 self.spn_query_max_depth.value(),
@@ -533,9 +557,11 @@ class MainWindow(QMainWindow):
             )
             self._show_query_result("Shallow events by date", result)
         except (TypeError, ValueError, RuntimeError) as error:
+            #show query error
             QMessageBox.warning(self, "Query failed", str(error))
 
     def _handle_query_associations(self):
+        #query associations for a selected event
         raw_event_id = self.txt_search_id.text().strip()
         if not raw_event_id.isdigit():
             QMessageBox.warning(
@@ -587,6 +613,7 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, "Replica associations", "\n".join(message))
 
     def _handle_query_costly_access(self):
+        #show costly-access events
         result = self.controller.query_costly_access_events()
         entries = [
             f"{item['event'].display_id} | depth {item['depth']} | "
@@ -598,6 +625,7 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, "Costly-access events", message)
 
     def _handle_export(self):
+        #export current scenario to JSON
         filepath, _ = QFileDialog.getSaveFileName(
             self, "Save JSON File", "", "JSON Files (*.json)"
         )
@@ -612,6 +640,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Error", f"Failed to save scenario: {error}")
 
     def _handle_save_version(self):
+        #save the current scenario with a version name
         version_name, accepted = QInputDialog.getText(
             self, "Save named version", "Version name:"
         )
@@ -643,6 +672,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Version save failed", str(error))
 
     def _handle_load(self):
+        #load a saved scenario from JSON
         filepath, _ = QFileDialog.getOpenFileName(
             self, "Open JSON File", "", "JSON Files (*.json)"
         )
@@ -677,6 +707,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Error", f"Failed to load file: {error}")
 
     def _handle_insert(self):
+        #insert a new event from the form
         try:
             station = self.txt_station.text().strip()
             if not station:
@@ -722,6 +753,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Invalid event", str(error))
 
     def _selected_event_id(self):
+        #get the currently selected event id
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
             QMessageBox.warning(
@@ -733,6 +765,7 @@ class MainWindow(QMainWindow):
         return id_item.data(Qt.ItemDataRole.UserRole)
 
     def _handle_search(self):
+        #search an event by id and show details
         raw_event_id = self.txt_search_id.text().strip()
         if not raw_event_id.isdigit():
             QMessageBox.warning(
@@ -774,6 +807,7 @@ class MainWindow(QMainWindow):
         )
 
     def _handle_apply_costly_access_limit(self):
+        #apply the costly-access threshold limit
         try:
             self.controller.set_costly_access_limit(
                 self.spn_costly_access_limit.value()
@@ -786,6 +820,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Invalid limit", str(error))
 
     def _handle_advance_clock(self):
+        #advance the simulation clock
         try:
             clock = self.controller.advance_simulation_clock(
                 self.spn_clock_advance.value()
@@ -796,6 +831,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Invalid clock advance", str(error))
 
     def _handle_apply_archive_threshold(self):
+        #apply the archive age threshold
         try:
             self.controller.set_archive_age_threshold(
                 self.spn_archive_threshold.value()
@@ -808,6 +844,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Invalid archive threshold", str(error))
 
     def _handle_archive_branch(self):
+        #preview and archive eligible low-priority branches
         candidate = self.controller.preview_archive_candidate()
         if candidate is None:
             QMessageBox.information(
@@ -853,6 +890,7 @@ class MainWindow(QMainWindow):
         )
 
     def _handle_show_history(self):
+        #show archived event history
         archived_events = sorted(
             self.controller.event_manager.archived_events.values(),
             key=lambda event: event.id,
