@@ -185,6 +185,7 @@ class TreeViewer(QWidget):
 
         layout = QVBoxLayout(self._tree_window)
         splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.setChildrenCollapsible(False)
 
         avl_panel = QWidget()
         avl_layout = QVBoxLayout(avl_panel)
@@ -193,7 +194,7 @@ class TreeViewer(QWidget):
         avl_layout.addWidget(self.avl_metrics_label)
         self.avl_canvas = AVLCanvas()
         avl_scroll_area = QScrollArea()
-        avl_scroll_area.setWidgetResizable(False)
+        avl_scroll_area.setWidgetResizable(True)
         avl_scroll_area.setWidget(self.avl_canvas)
         avl_layout.addWidget(avl_scroll_area)
 
@@ -204,7 +205,7 @@ class TreeViewer(QWidget):
         bst_layout.addWidget(self.bst_metrics_label)
         self.bst_canvas = AVLCanvas()
         bst_scroll_area = QScrollArea()
-        bst_scroll_area.setWidgetResizable(False)
+        bst_scroll_area.setWidgetResizable(True)
         bst_scroll_area.setWidget(self.bst_canvas)
         bst_layout.addWidget(bst_scroll_area)
 
@@ -215,12 +216,16 @@ class TreeViewer(QWidget):
         self.replica_tree.setHeaderLabels(
             ["Event ID", "Magnitude", "Coordinates (X, Y, Z)", "Timestamp"]
         )
+        self.replica_tree.setMinimumHeight(220)
         replica_layout.addWidget(self.replica_tree)
 
         splitter.addWidget(avl_panel)
         splitter.addWidget(bst_panel)
         splitter.addWidget(replica_panel)
-        splitter.setSizes([500, 500, 500])
+        splitter.setSizes([1, 1, 1])
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 1)
+        splitter.setStretchFactor(2, 1)
         layout.addWidget(splitter)
 
     def _on_tree_window_closed(self):
