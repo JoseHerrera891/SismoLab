@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import (
     QInputDialog,
 )
 from PyQt6.QtCore import Qt, QDateTime
+from core.bst_tree import measure_tree
 from core.event import Event
 from gui.map_viewer import MapViewer
 from gui.tree_viewer import TreeViewer
@@ -445,6 +446,10 @@ class MainWindow(QMainWindow):
         self.lbl_system_metrics = QLabel()
         self.lbl_system_metrics.setWordWrap(True)
         layout.addWidget(self.lbl_system_metrics)
+        self.lbl_avl_vs_bst = QLabel()
+        self.lbl_avl_vs_bst.setWordWrap(True)
+        self.lbl_avl_vs_bst.setStyleSheet("color: #0b3b5b; font-weight: bold;")
+        layout.addWidget(self.lbl_avl_vs_bst)
         self.btn_show_traversals = QPushButton("View tree traversals")
         self.btn_show_traversals.clicked.connect(self._handle_show_traversals)
         layout.addWidget(self.btn_show_traversals)
@@ -1131,6 +1136,13 @@ class MainWindow(QMainWindow):
         priorities = metrics["priority_counts"]
         rotation_cases = metrics["rotation_cases"]
         counters = metrics["operation_counters"]
+        comparison_tree = self.controller.build_comparison_tree()
+        bst_metrics = comparison_tree.metrics()
+        avl_vs_bst_text = (
+            "AVL is balanced; BST is unbalanced."
+            if bst_metrics["height"] > metrics["height"]
+            else "AVL and BST remain similarly shallow for this dataset."
+        )
         self.lbl_system_metrics.setText(
             f"Active: {metrics['active_events']} | "
             f"Archived: {metrics['archived_events']} | "
@@ -1148,6 +1160,11 @@ class MainWindow(QMainWindow):
             f"Conflicts: {counters['conflicts']} | "
             f"Archived branches/events: {counters['mass_archives']}/"
             f"{counters['events_archived']}"
+        )
+        self.lbl_avl_vs_bst.setText(
+            f"AVL vs BST: height {metrics['height']} vs {bst_metrics['height']} | "
+            f"avg search cost {bst_metrics['average_search_comparisons']:.2f} vs balanced AVL. "
+            f"{avl_vs_bst_text}"
         )
         self.map_viewer.set_data(events, self.map_manager.zones)
         self.tree_viewer.populate_tree(
