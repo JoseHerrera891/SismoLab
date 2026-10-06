@@ -1,4 +1,4 @@
-# gui/main_window.py
+# main window to access all the features of the program
 from PyQt6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -30,12 +30,12 @@ from sismolab_controller import SismoLabController
 
 
 class MainWindow(QMainWindow):
-    """Main dashboard for the seismic monitoring system."""
-
+    #main dashboard fot the seismic monitoring system
+    #set window size
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Seismic Monitoring Dashboard")
-        self.resize(1450, 850)
+        self.resize(1450, 20)
 
         self.controller = SismoLabController()
         self.map_manager = self.controller.map_manager
@@ -59,7 +59,7 @@ class MainWindow(QMainWindow):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("font-size: 18px; font-weight: bold; padding: 5px;")
         main_layout.addWidget(title_label)
-
+        #initiation of main buttons
         file_actions = QHBoxLayout()
         self.btn_load = QPushButton("Load JSON / Restore Version")
         self.btn_load.clicked.connect(self._handle_load)
@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(file_actions)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
-
+        #initiation of the trees and map
         visualization_panel = QWidget()
         visualization_layout = QVBoxLayout(visualization_panel)
         self.map_viewer = MapViewer()
@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.table = QTableWidget()
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(
-            [
+            [#labels for the table of events
                 "ID",
                 "X (km)",
                 "Y (km)",
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         )
         self.table.setSelectionMode(
             QAbstractItemView.SelectionMode.SingleSelection
-        )
+        )#when selected from table, data will be tranfered to the spaces (to edit acction)
         self.table.itemSelectionChanged.connect(
             self._load_selected_event_into_form
         )
