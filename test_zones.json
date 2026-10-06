@@ -1,0 +1,44 @@
+{
+  "zones": [
+    {
+      "name": "Zona urbana",
+      "x_min": 100,
+      "x_max": 300,
+      "y_min": 150,
+      "y_max": 400,
+      "is_populated": true
+    },
+    {
+      "name": "Zona urbana norte",
+      "x_min": 520,
+      "x_max": 760,
+      "y_min": 80,
+      "y_max": 230,
+      "is_populated": true
+    },
+    {
+      "name": "Zona rural oeste",
+      "x_min": 30,
+      "x_max": 180,
+      "y_min": 600,
+      "y_max": 850,
+      "is_populated": false
+    },
+    {
+      "name": "Zona rural sur",
+      "x_min": 350,
+      "x_max": 480,
+      "y_min": 620,
+      "y_max": 760,
+      "is_populated": false
+    },
+    {
+      "name": "Centro poblado este",
+      "x_min": 780,
+      "x_max": 950,
+      "y_min": 400,
+      "y_max": 570,
+      "is_populated": true
+    }
+  ]
+}
