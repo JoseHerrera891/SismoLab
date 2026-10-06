@@ -184,8 +184,11 @@ class AVLtree:
             else:
                 father.setRightChild(None)
             node.setFather(None)
-            if auto_balance and father:
-                self._rebalance_ancestors(father)
+            if father:
+                if auto_balance:
+                    self._rebalance_ancestors(father)
+                else:
+                    self._update_ancestor_heights(father)
             return
 
         # Case 2. only right child
@@ -200,8 +203,11 @@ class AVLtree:
                 else:
                     father.setRightChild(child)
                 child.setFather(father)
-            if auto_balance and father:
-                self._rebalance_ancestors(father)
+            if father:
+                if auto_balance:
+                    self._rebalance_ancestors(father)
+                else:
+                    self._update_ancestor_heights(father)
             return
 
         # Case 3. only left child
@@ -216,8 +222,11 @@ class AVLtree:
                 else:
                     father.setRightChild(child)
                 child.setFather(father)
-            if auto_balance and father:
-                self._rebalance_ancestors(father)
+            if father:
+                if auto_balance:
+                    self._rebalance_ancestors(father)
+                else:
+                    self._update_ancestor_heights(father)
             return
 
         # Case 4. two childs
@@ -266,3 +275,10 @@ class AVLtree:
             next_father = currentNode.getFather()
             self._rebalance_node(currentNode)
             currentNode = next_father
+
+    def _update_ancestor_heights(self, node):
+        """Keep height metadata valid while stress mode defers rotations."""
+        current_node = node
+        while current_node is not None:
+            self._update_height(current_node)
+            current_node = current_node.getFather()

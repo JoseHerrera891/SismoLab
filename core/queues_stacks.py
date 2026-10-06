@@ -62,3 +62,7 @@ class ReportQueue:
     def to_list(self) -> list:
         #returns a list of the reports in line
         return list(self._items)
+
+    def restore(self, reports: list) -> None:
+        """Replace the queue contents while preserving FIFO order."""
+        self._items = deque(reports)

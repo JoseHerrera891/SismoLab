@@ -13,6 +13,20 @@ class ReplicaManager:
         self.W_hours = W_hours  # Maximum time window in hours (Section 7)
         self.R_km = R_km  # Maximum Euclidean distance in km (Section 7)
 
+    def configure(self, W_hours: float, R_km: float) -> None:
+        """Set the maximum time and distance limits for event associations."""
+        if (
+            not math.isfinite(W_hours)
+            or not math.isfinite(R_km)
+            or W_hours < 0
+            or R_km < 0
+        ):
+            raise ValueError(
+                "Association limits must be finite, non-negative numbers."
+            )
+        self.W_hours = float(W_hours)
+        self.R_km = float(R_km)
+
     def calculate_distance(
         self, x1: float, y1: float, x2: float, y2: float
     ) -> float:

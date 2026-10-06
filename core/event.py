@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 # model for the seismic event and priority (value of the node)
@@ -16,7 +16,9 @@ class Event:
             timestamp = datetime.fromisoformat(timestamp)
         if not isinstance(timestamp, datetime):
             raise TypeError("Timestamp must be a datetime or an ISO 8601 string.")
-        self.timestamp = timestamp
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
+        self.timestamp = timestamp.astimezone(timezone.utc)
         self.station = station
         self.is_populated = is_populated
         self.revision = int(revision)
