@@ -1,0 +1,51 @@
+{
+  "format": "SismoLabScenario",
+  "format_version": 2,
+  "version_name": "normal-balanced-tree",
+  "system_config": {
+    "W_hours": 48.0,
+    "R_km": 40.0,
+    "L": 3,
+    "T_hours": 72.0,
+    "simulation_clock": "2026-10-06T12:00:00+00:00",
+    "stress_mode": false
+  },
+  "active_events": [
+    {"id": 1401, "magnitude": 3.0, "depth": 50.0, "x": 100.0, "y": 100.0, "timestamp": "2026-10-01T10:00:00+00:00", "station": "TREE-1", "accepted_stations": ["TREE-1"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1402, "magnitude": 3.0, "depth": 50.0, "x": 120.0, "y": 100.0, "timestamp": "2026-10-01T10:05:00+00:00", "station": "TREE-2", "accepted_stations": ["TREE-2"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1403, "magnitude": 3.0, "depth": 50.0, "x": 140.0, "y": 100.0, "timestamp": "2026-10-01T10:10:00+00:00", "station": "TREE-3", "accepted_stations": ["TREE-3"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1404, "magnitude": 3.0, "depth": 50.0, "x": 160.0, "y": 100.0, "timestamp": "2026-10-01T10:15:00+00:00", "station": "TREE-4", "accepted_stations": ["TREE-4"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1405, "magnitude": 3.0, "depth": 50.0, "x": 180.0, "y": 100.0, "timestamp": "2026-10-01T10:20:00+00:00", "station": "TREE-5", "accepted_stations": ["TREE-5"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1406, "magnitude": 3.0, "depth": 50.0, "x": 200.0, "y": 100.0, "timestamp": "2026-10-01T10:25:00+00:00", "station": "TREE-6", "accepted_stations": ["TREE-6"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1407, "magnitude": 3.0, "depth": 50.0, "x": 220.0, "y": 100.0, "timestamp": "2026-10-01T10:30:00+00:00", "station": "TREE-7", "accepted_stations": ["TREE-7"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"}
+  ],
+  "archived_events": [],
+  "deleted_ids": [],
+  "report_queue": [],
+  "operation_counters": {
+    "corrections_accepted": 0,
+    "reports_discarded": 0,
+    "conflicts": 0,
+    "mass_archives": 0,
+    "events_archived": 0
+  },
+  "zones": [],
+  "tree": {
+    "root_id": 1404,
+    "nodes": [
+      {"id": 1404, "left": 1402, "right": 1406, "height": 2, "balance_factor": 0},
+      {"id": 1402, "left": 1401, "right": 1403, "height": 1, "balance_factor": 0},
+      {"id": 1406, "left": 1405, "right": 1407, "height": 1, "balance_factor": 0},
+      {"id": 1401, "left": null, "right": null, "height": 0, "balance_factor": 0},
+      {"id": 1403, "left": null, "right": null, "height": 0, "balance_factor": 0},
+      {"id": 1405, "left": null, "right": null, "height": 0, "balance_factor": 0},
+      {"id": 1407, "left": null, "right": null, "height": 0, "balance_factor": 0}
+    ]
+  },
+  "metrics": {
+    "ll_rotations": 0,
+    "rr_rotations": 0,
+    "lr_rotations": 0,
+    "rl_rotations": 0
+  }
+}

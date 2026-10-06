@@ -1,0 +1,49 @@
+{
+  "format": "SismoLabScenario",
+  "format_version": 2,
+  "version_name": "stress-unbalanced-tree",
+  "system_config": {
+    "W_hours": 48.0,
+    "R_km": 40.0,
+    "L": 3,
+    "T_hours": 72.0,
+    "simulation_clock": "2026-10-06T12:00:00+00:00",
+    "stress_mode": true
+  },
+  "active_events": [
+    {"id": 1601, "magnitude": 3.0, "depth": 50.0, "x": 100.0, "y": 100.0, "timestamp": "2026-10-01T10:00:00+00:00", "station": "STRESS-1", "accepted_stations": ["STRESS-1"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1602, "magnitude": 3.0, "depth": 50.0, "x": 120.0, "y": 100.0, "timestamp": "2026-10-01T10:05:00+00:00", "station": "STRESS-2", "accepted_stations": ["STRESS-2"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1603, "magnitude": 3.0, "depth": 50.0, "x": 140.0, "y": 100.0, "timestamp": "2026-10-01T10:10:00+00:00", "station": "STRESS-3", "accepted_stations": ["STRESS-3"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1604, "magnitude": 3.0, "depth": 50.0, "x": 160.0, "y": 100.0, "timestamp": "2026-10-01T10:15:00+00:00", "station": "STRESS-4", "accepted_stations": ["STRESS-4"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1605, "magnitude": 3.0, "depth": 50.0, "x": 180.0, "y": 100.0, "timestamp": "2026-10-01T10:20:00+00:00", "station": "STRESS-5", "accepted_stations": ["STRESS-5"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"},
+    {"id": 1606, "magnitude": 3.0, "depth": 50.0, "x": 200.0, "y": 100.0, "timestamp": "2026-10-01T10:25:00+00:00", "station": "STRESS-6", "accepted_stations": ["STRESS-6"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"}
+  ],
+  "archived_events": [],
+  "deleted_ids": [],
+  "report_queue": [],
+  "operation_counters": {
+    "corrections_accepted": 0,
+    "reports_discarded": 0,
+    "conflicts": 0,
+    "mass_archives": 0,
+    "events_archived": 0
+  },
+  "zones": [],
+  "tree": {
+    "root_id": 1601,
+    "nodes": [
+      {"id": 1601, "left": null, "right": 1602, "height": 5, "balance_factor": -5},
+      {"id": 1602, "left": null, "right": 1603, "height": 4, "balance_factor": -4},
+      {"id": 1603, "left": null, "right": 1604, "height": 3, "balance_factor": -3},
+      {"id": 1604, "left": null, "right": 1605, "height": 2, "balance_factor": -2},
+      {"id": 1605, "left": null, "right": 1606, "height": 1, "balance_factor": -1},
+      {"id": 1606, "left": null, "right": null, "height": 0, "balance_factor": 0}
+    ]
+  },
+  "metrics": {
+    "ll_rotations": 0,
+    "rr_rotations": 0,
+    "lr_rotations": 0,
+    "rl_rotations": 0
+  }
+}

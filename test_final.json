@@ -1,0 +1,768 @@
+{
+    "format": "SismoLabScenario",
+    "format_version": 2,
+    "version_name": "",
+    "system_config": {
+        "W_hours": 48.0,
+        "R_km": 40.0,
+        "L": 3,
+        "T_hours": 72.0,
+        "simulation_clock": "2026-10-07T13:06:05.337221+00:00",
+        "stress_mode": false
+    },
+    "active_events": [
+        {
+            "id": 1,
+            "magnitude": 3.2,
+            "depth": 18.0,
+            "x": 45.0,
+            "y": 72.0,
+            "timestamp": "2026-10-01T08:12:00+00:00",
+            "station": "STA-01",
+            "accepted_stations": [
+                "STA-01"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 2,
+            "magnitude": 4.7,
+            "depth": 24.0,
+            "x": 682.0,
+            "y": 145.0,
+            "timestamp": "2026-10-01T08:35:00+00:00",
+            "station": "STA-02",
+            "accepted_stations": [
+                "STA-02"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 3,
+            "magnitude": 5.3,
+            "depth": 42.0,
+            "x": 928.0,
+            "y": 914.0,
+            "timestamp": "2026-10-01T09:03:00+00:00",
+            "station": "STA-03",
+            "accepted_stations": [
+                "STA-03"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 4,
+            "magnitude": 2.8,
+            "depth": 11.0,
+            "x": 337.0,
+            "y": 526.0,
+            "timestamp": "2026-10-01T09:41:00+00:00",
+            "station": "STA-04",
+            "accepted_stations": [
+                "STA-04"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 5,
+            "magnitude": 4.6,
+            "depth": 16.0,
+            "x": 846.0,
+            "y": 468.0,
+            "timestamp": "2026-10-01T10:17:00+00:00",
+            "station": "STA-05",
+            "accepted_stations": [
+                "STA-05"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 6,
+            "magnitude": 3.9,
+            "depth": 31.0,
+            "x": 154.0,
+            "y": 742.0,
+            "timestamp": "2026-10-01T10:52:00+00:00",
+            "station": "STA-06",
+            "accepted_stations": [
+                "STA-06"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 7,
+            "magnitude": 6.1,
+            "depth": 9.0,
+            "x": 574.0,
+            "y": 842.0,
+            "timestamp": "2026-10-01T11:28:00+00:00",
+            "station": "STA-07",
+            "accepted_stations": [
+                "STA-07"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 3,
+            "status": "PENDING"
+        },
+        {
+            "id": 8,
+            "magnitude": 4.5,
+            "depth": 27.0,
+            "x": 261.0,
+            "y": 203.0,
+            "timestamp": "2026-10-01T12:06:00+00:00",
+            "station": "STA-08",
+            "accepted_stations": [
+                "STA-08"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 9,
+            "magnitude": 3.4,
+            "depth": 64.0,
+            "x": 733.0,
+            "y": 349.0,
+            "timestamp": "2026-10-01T12:43:00+00:00",
+            "station": "STA-09",
+            "accepted_stations": [
+                "STA-09"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 10,
+            "magnitude": 4.1,
+            "depth": 22.0,
+            "x": 91.0,
+            "y": 941.0,
+            "timestamp": "2026-10-01T13:20:00+00:00",
+            "station": "STA-10",
+            "accepted_stations": [
+                "STA-10"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 11,
+            "magnitude": 5.8,
+            "depth": 14.0,
+            "x": 492.0,
+            "y": 116.0,
+            "timestamp": "2026-10-01T14:02:00+00:00",
+            "station": "STA-11",
+            "accepted_stations": [
+                "STA-11"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 12,
+            "magnitude": 2.6,
+            "depth": 37.0,
+            "x": 388.0,
+            "y": 691.0,
+            "timestamp": "2026-10-01T14:46:00+00:00",
+            "station": "STA-12",
+            "accepted_stations": [
+                "STA-12"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 13,
+            "magnitude": 4.9,
+            "depth": 19.0,
+            "x": 975.0,
+            "y": 284.0,
+            "timestamp": "2026-10-01T15:18:00+00:00",
+            "station": "STA-13",
+            "accepted_stations": [
+                "STA-13"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 14,
+            "magnitude": 3.6,
+            "depth": 53.0,
+            "x": 208.0,
+            "y": 471.0,
+            "timestamp": "2026-10-01T16:01:00+00:00",
+            "station": "STA-14",
+            "accepted_stations": [
+                "STA-14"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 15,
+            "magnitude": 6.4,
+            "depth": 8.0,
+            "x": 617.0,
+            "y": 572.0,
+            "timestamp": "2026-10-01T16:39:00+00:00",
+            "station": "STA-15",
+            "accepted_stations": [
+                "STA-15"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 3,
+            "status": "PENDING"
+        },
+        {
+            "id": 16,
+            "magnitude": 4.4,
+            "depth": 26.0,
+            "x": 428.0,
+            "y": 327.0,
+            "timestamp": "2026-10-01T17:14:00+00:00",
+            "station": "STA-16",
+            "accepted_stations": [
+                "STA-16"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 17,
+            "magnitude": 3.1,
+            "depth": 44.0,
+            "x": 812.0,
+            "y": 78.0,
+            "timestamp": "2026-10-01T18:05:00+00:00",
+            "station": "STA-17",
+            "accepted_stations": [
+                "STA-17"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 18,
+            "magnitude": 5.1,
+            "depth": 21.0,
+            "x": 128.0,
+            "y": 362.0,
+            "timestamp": "2026-10-01T18:47:00+00:00",
+            "station": "STA-18",
+            "accepted_stations": [
+                "STA-18"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 19,
+            "magnitude": 2.9,
+            "depth": 33.0,
+            "x": 552.0,
+            "y": 426.0,
+            "timestamp": "2026-10-01T19:22:00+00:00",
+            "station": "STA-19",
+            "accepted_stations": [
+                "STA-19"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 20,
+            "magnitude": 4.8,
+            "depth": 17.0,
+            "x": 903.0,
+            "y": 673.0,
+            "timestamp": "2026-10-01T20:11:00+00:00",
+            "station": "STA-20",
+            "accepted_stations": [
+                "STA-20"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 21,
+            "magnitude": 3.7,
+            "depth": 29.0,
+            "x": 31.0,
+            "y": 518.0,
+            "timestamp": "2026-10-01T21:04:00+00:00",
+            "station": "STA-21",
+            "accepted_stations": [
+                "STA-21"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 22,
+            "magnitude": 5.6,
+            "depth": 12.0,
+            "x": 743.0,
+            "y": 783.0,
+            "timestamp": "2026-10-01T21:48:00+00:00",
+            "station": "STA-22",
+            "accepted_stations": [
+                "STA-22"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 23,
+            "magnitude": 2.4,
+            "depth": 68.0,
+            "x": 305.0,
+            "y": 873.0,
+            "timestamp": "2026-10-01T22:16:00+00:00",
+            "station": "STA-23",
+            "accepted_stations": [
+                "STA-23"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 24,
+            "magnitude": 4.3,
+            "depth": 15.0,
+            "x": 465.0,
+            "y": 238.0,
+            "timestamp": "2026-10-02T00:09:00+00:00",
+            "station": "STA-24",
+            "accepted_stations": [
+                "STA-24"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 25,
+            "magnitude": 3.3,
+            "depth": 25.0,
+            "x": 661.0,
+            "y": 965.0,
+            "timestamp": "2026-10-02T01:27:00+00:00",
+            "station": "STA-25",
+            "accepted_stations": [
+                "STA-25"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 26,
+            "magnitude": 6.8,
+            "depth": 7.0,
+            "x": 183.0,
+            "y": 82.0,
+            "timestamp": "2026-10-02T02:13:00+00:00",
+            "station": "STA-26",
+            "accepted_stations": [
+                "STA-26"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 3,
+            "status": "PENDING"
+        },
+        {
+            "id": 27,
+            "magnitude": 4.6,
+            "depth": 39.0,
+            "x": 864.0,
+            "y": 333.0,
+            "timestamp": "2026-10-02T03:05:00+00:00",
+            "station": "STA-27",
+            "accepted_stations": [
+                "STA-27"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 28,
+            "magnitude": 3.0,
+            "depth": 20.0,
+            "x": 376.0,
+            "y": 957.0,
+            "timestamp": "2026-10-02T04:42:00+00:00",
+            "station": "STA-28",
+            "accepted_stations": [
+                "STA-28"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        },
+        {
+            "id": 29,
+            "magnitude": 5.0,
+            "depth": 28.0,
+            "x": 719.0,
+            "y": 512.0,
+            "timestamp": "2026-10-02T05:26:00+00:00",
+            "station": "STA-29",
+            "accepted_stations": [
+                "STA-29"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 2,
+            "status": "PENDING"
+        },
+        {
+            "id": 30,
+            "magnitude": 4.0,
+            "depth": 46.0,
+            "x": 246.0,
+            "y": 644.0,
+            "timestamp": "2026-10-02T06:18:00+00:00",
+            "station": "STA-30",
+            "accepted_stations": [
+                "STA-30"
+            ],
+            "revision": 1,
+            "is_populated": false,
+            "priority": 1,
+            "status": "PENDING"
+        }
+    ],
+    "archived_events": [],
+    "deleted_ids": [],
+    "report_queue": [],
+    "operation_counters": {
+        "corrections_accepted": 0,
+        "reports_discarded": 0,
+        "conflicts": 0,
+        "mass_archives": 0,
+        "events_archived": 0
+    },
+    "zones": [
+        {
+            "name": "Zona urbana",
+            "x_min": 100.0,
+            "x_max": 300.0,
+            "y_min": 150.0,
+            "y_max": 400.0,
+            "is_populated": true
+        },
+        {
+            "name": "Zona urbana norte",
+            "x_min": 520.0,
+            "x_max": 760.0,
+            "y_min": 80.0,
+            "y_max": 230.0,
+            "is_populated": true
+        },
+        {
+            "name": "Zona rural oeste",
+            "x_min": 30.0,
+            "x_max": 180.0,
+            "y_min": 600.0,
+            "y_max": 850.0,
+            "is_populated": false
+        },
+        {
+            "name": "Zona rural sur",
+            "x_min": 350.0,
+            "x_max": 480.0,
+            "y_min": 620.0,
+            "y_max": 760.0,
+            "is_populated": false
+        },
+        {
+            "name": "Centro poblado este",
+            "x_min": 780.0,
+            "x_max": 950.0,
+            "y_min": 400.0,
+            "y_max": 570.0,
+            "is_populated": true
+        }
+    ],
+    "tree": {
+        "root_id": 5,
+        "nodes": [
+            {
+                "id": 5,
+                "left": 1,
+                "right": 3,
+                "height": 5,
+                "balance_factor": 1
+            },
+            {
+                "id": 1,
+                "left": 4,
+                "right": 6,
+                "height": 4,
+                "balance_factor": -1
+            },
+            {
+                "id": 4,
+                "left": 12,
+                "right": 28,
+                "height": 2,
+                "balance_factor": 0
+            },
+            {
+                "id": 12,
+                "left": 23,
+                "right": null,
+                "height": 1,
+                "balance_factor": 1
+            },
+            {
+                "id": 23,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 28,
+                "left": 19,
+                "right": 17,
+                "height": 1,
+                "balance_factor": 0
+            },
+            {
+                "id": 19,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 17,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 6,
+                "left": 14,
+                "right": 16,
+                "height": 3,
+                "balance_factor": 0
+            },
+            {
+                "id": 14,
+                "left": 9,
+                "right": 21,
+                "height": 2,
+                "balance_factor": 1
+            },
+            {
+                "id": 9,
+                "left": 25,
+                "right": null,
+                "height": 1,
+                "balance_factor": 1
+            },
+            {
+                "id": 25,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 21,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 16,
+                "left": 10,
+                "right": 8,
+                "height": 2,
+                "balance_factor": 1
+            },
+            {
+                "id": 10,
+                "left": 30,
+                "right": 24,
+                "height": 1,
+                "balance_factor": 0
+            },
+            {
+                "id": 30,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 24,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 8,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 3,
+                "left": 13,
+                "right": 7,
+                "height": 3,
+                "balance_factor": 0
+            },
+            {
+                "id": 13,
+                "left": 2,
+                "right": 18,
+                "height": 2,
+                "balance_factor": 0
+            },
+            {
+                "id": 2,
+                "left": 27,
+                "right": 20,
+                "height": 1,
+                "balance_factor": 0
+            },
+            {
+                "id": 27,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 20,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 18,
+                "left": 29,
+                "right": null,
+                "height": 1,
+                "balance_factor": 1
+            },
+            {
+                "id": 29,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 7,
+                "left": 11,
+                "right": 15,
+                "height": 2,
+                "balance_factor": 0
+            },
+            {
+                "id": 11,
+                "left": 22,
+                "right": null,
+                "height": 1,
+                "balance_factor": 1
+            },
+            {
+                "id": 22,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            },
+            {
+                "id": 15,
+                "left": null,
+                "right": 26,
+                "height": 1,
+                "balance_factor": -1
+            },
+            {
+                "id": 26,
+                "left": null,
+                "right": null,
+                "height": 0,
+                "balance_factor": 0
+            }
+        ]
+    },
+    "metrics": {
+        "ll_rotations": 1,
+        "rr_rotations": 5,
+        "lr_rotations": 3,
+        "rl_rotations": 0
+    }
+}

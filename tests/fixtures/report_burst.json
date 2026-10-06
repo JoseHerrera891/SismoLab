@@ -1,0 +1,41 @@
+{
+  "format": "SismoLabScenario",
+  "format_version": 2,
+  "version_name": "five-station-reports",
+  "system_config": {
+    "W_hours": 48.0,
+    "R_km": 40.0,
+    "L": 3,
+    "T_hours": 72.0,
+    "simulation_clock": "2026-10-06T12:00:00+00:00",
+    "stress_mode": false
+  },
+  "active_events": [],
+  "archived_events": [],
+  "deleted_ids": [],
+  "report_queue": [
+    {"event_id": 1901, "revision": 1, "magnitude": 3.2, "depth": 40.0, "x": 100.0, "y": 100.0, "timestamp": "2026-10-06T10:00:00+00:00", "station": "BURST-01", "is_populated": false},
+    {"event_id": 1902, "revision": 1, "magnitude": 4.1, "depth": 35.0, "x": 120.0, "y": 110.0, "timestamp": "2026-10-06T10:01:00+00:00", "station": "BURST-02", "is_populated": false},
+    {"event_id": 1903, "revision": 1, "magnitude": 5.0, "depth": 20.0, "x": 540.0, "y": 120.0, "timestamp": "2026-10-06T10:02:00+00:00", "station": "BURST-03", "is_populated": true},
+    {"event_id": 1904, "revision": 1, "magnitude": 2.8, "depth": 80.0, "x": 800.0, "y": 500.0, "timestamp": "2026-10-06T10:03:00+00:00", "station": "BURST-04", "is_populated": true},
+    {"event_id": 1905, "revision": 1, "magnitude": 6.1, "depth": 12.0, "x": 250.0, "y": 250.0, "timestamp": "2026-10-06T10:04:00+00:00", "station": "BURST-05", "is_populated": true}
+  ],
+  "operation_counters": {
+    "corrections_accepted": 0,
+    "reports_discarded": 0,
+    "conflicts": 0,
+    "mass_archives": 0,
+    "events_archived": 0
+  },
+  "zones": [],
+  "tree": {
+    "root_id": null,
+    "nodes": []
+  },
+  "metrics": {
+    "ll_rotations": 0,
+    "rr_rotations": 0,
+    "lr_rotations": 0,
+    "rl_rotations": 0
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "format": "SismoLabScenario",
+  "format_version": 2,
+  "version_name": "invalid-balance-factor",
+  "system_config": {
+    "W_hours": 48.0,
+    "R_km": 40.0,
+    "L": 3,
+    "T_hours": 72.0,
+    "simulation_clock": "2026-10-06T12:00:00+00:00",
+    "stress_mode": false
+  },
+  "active_events": [
+    {"id": 1801, "magnitude": 3.0, "depth": 50.0, "x": 100.0, "y": 100.0, "timestamp": "2026-10-01T10:00:00+00:00", "station": "INVALID-A", "accepted_stations": ["INVALID-A"], "revision": 1, "is_populated": false, "priority": 1, "status": "PENDING"}
+  ],
+  "archived_events": [],
+  "deleted_ids": [],
+  "report_queue": [],
+  "operation_counters": {
+    "corrections_accepted": 0,
+    "reports_discarded": 0,
+    "conflicts": 0,
+    "mass_archives": 0,
+    "events_archived": 0
+  },
+  "zones": [],
+  "tree": {
+    "root_id": 1801,
+    "nodes": [
+      {"id": 1801, "left": null, "right": null, "height": 0, "balance_factor": 1}
+    ]
+  },
+  "metrics": {
+    "ll_rotations": 0,
+    "rr_rotations": 0,
+    "lr_rotations": 0,
+    "rl_rotations": 0
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "events_count": 6,
+  "events": [
+    {
+      "id": 1001,
+      "magnitude": 4.5,
+      "depth": 30.0,
+      "x": 100.0,
+      "y": 150.0,
+      "timestamp": "2026-10-01T10:00:00+00:00",
+      "station": "LOAD-A",
+      "is_populated": true
+    },
+    {
+      "id": 1002,
+      "magnitude": 4.5,
+      "depth": 30.0,
+      "x": 300.0,
+      "y": 400.0,
+      "timestamp": "2026-10-01T10:05:00+00:00",
+      "station": "LOAD-B",
+      "is_populated": true
+    },
+    {
+      "id": 1003,
+      "magnitude": 4.5,
+      "depth": 30.0,
+      "x": 301.0,
+      "y": 401.0,
+      "timestamp": "2026-10-01T10:10:00+00:00",
+      "station": "LOAD-C",
+      "is_populated": false
+    },
+    {
+      "id": 1004,
+      "magnitude": 6.0,
+      "depth": 50.0,
+      "x": 800.0,
+      "y": 700.0,
+      "timestamp": "2026-10-01T10:15:00+00:00",
+      "station": "LOAD-D"
+    },
+    {
+      "id": 1005,
+      "magnitude": 4.4,
+      "depth": 30.0,
+      "x": 20.0,
+      "y": 20.0,
+      "timestamp": "2026-10-01T10:20:00+00:00",
+      "station": "LOAD-E"
+    },
+    {
+      "id": 1006,
+      "magnitude": 4.5,
+      "depth": 30.0,
+      "x": 150.0,
+      "y": 200.0,
+      "timestamp": "2026-10-01T10:25:00+00:00",
+      "station": "LOAD-F",
+      "is_populated": true
+    }
+  ]
+}
