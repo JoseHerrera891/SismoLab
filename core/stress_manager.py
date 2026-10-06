@@ -14,7 +14,7 @@ class StressManager:
         self.is_stress_mode = False
 
     def recover_avl_balance(self) -> int:
-        """Restore AVL balance in-place without rebuilding from sorted events."""
+        #restore avl balance without sort
         rotations_before = sum(
             (
                 self.avl.ll_rotations,

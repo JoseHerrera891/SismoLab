@@ -1,0 +1,48 @@
+{
+    "system_config": {
+        "W_hours": 48.0,
+        "R_km": 40.0
+    },
+    "events_count": 3,
+    "events": [
+        {
+            "id": 1,
+            "x": 200.0,
+            "y": 300.0,
+            "z": 30.0,
+            "magnitude": 4.5,
+            "timestamp": "2026-10-05T18:07:57.509306",
+            "station": "testp3",
+            "is_in_populated_zone": true,
+            "main_reference_id": null,
+            "candidate_ids": []
+        },
+        {
+            "id": 2,
+            "x": 200.0,
+            "y": 300.0,
+            "z": 40.0,
+            "magnitude": 4.5,
+            "timestamp": "2026-10-05T18:08:12.748055",
+            "station": "testp2",
+            "is_in_populated_zone": true,
+            "main_reference_id": null,
+            "candidate_ids": []
+        },
+        {
+            "id": 3,
+            "x": 200.0,
+            "y": 300.0,
+            "z": 40.0,
+            "magnitude": 4.0,
+            "timestamp": "2026-10-05T18:08:26.819494",
+            "station": "testp2",
+            "is_in_populated_zone": true,
+            "main_reference_id": 1,
+            "candidate_ids": [
+                1,
+                2
+            ]
+        }
+    ]
+}
