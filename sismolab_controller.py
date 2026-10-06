@@ -15,7 +15,9 @@ from core.event import Event
 
 
 class SismoLabController:
+    #main controller for the seismic event model and AVL state
     def __init__(self):
+        #initialize core state and service managers
         self.tree = AVLtree()
         self.costly_access_limit = 3
         self.archive_age_threshold_hours = 72.0
@@ -42,9 +44,11 @@ class SismoLabController:
 
     @property
     def events(self):
+        #return the active events currently in the model
         return list(self.event_manager.active_events.values())
 
     def generate_event_id(self) -> int:
+        #generate a unique event id for the next insertion
         """Return the next ID after all active or permanently deleted events."""
         occupied_ids = (
             set(self.event_manager.active_events)
@@ -57,6 +61,7 @@ class SismoLabController:
         return next_id
 
     def replace_events(self, events: list[Event]) -> None:
+        #replace the current scenario with a new loaded set of events
         """Replace the current scenario with events loaded from a data source."""
         new_tree = AVLtree()
         new_event_manager = EventManager(new_tree)
@@ -88,6 +93,7 @@ class SismoLabController:
         )
 
     def restore_scenario_state(self, data: dict) -> None:
+        #restore a previously saved scenario after validating its integrity
         """Validate a complete saved scenario before replacing current state."""
         config = data.get("system_config")
         tree_data = data.get("tree")
@@ -401,6 +407,7 @@ class SismoLabController:
         return tree
 
     def add_event(self, event: Event) -> bool:
+        #add a new event to the active tree and catalog
         if event.timestamp > self.simulation_clock:
             raise ValueError("Event time cannot be later than the simulation clock.")
         if (
@@ -422,6 +429,7 @@ class SismoLabController:
         return added
 
     def register_event_report(self, event: Event) -> str:
+        #register a report or attach a new station to an existing event
         """Register an event or add a reporting station to an existing event."""
         existing = self.event_manager.get_event(event.id)
         if existing is not None:
@@ -440,6 +448,7 @@ class SismoLabController:
         return "created"
 
     def enqueue_event_report(self, report_data: dict) -> None:
+        #queue a new report before processing it through the event pipeline
         """Validate and append one station report to the FIFO queue."""
         event = self._event_from_report(report_data)
         if not event.station:
@@ -467,6 +476,7 @@ class SismoLabController:
         )
 
     def process_next_event_report(self) -> str:
+        #process the next queued report and classify the result
         """Process one queued report and return its outcome classification."""
         if self.report_queue.is_empty():
             return "empty"
@@ -542,9 +552,11 @@ class SismoLabController:
         return result
 
     def _push_full_undo_state(self) -> None:
+        #store the current model snapshot before mutating state
         self.undo_stack.push(self._capture_state())
 
     def _capture_state(self) -> dict:
+        #deep-copy the current state so undo can restore it safely
         return deepcopy(
             {
                 "tree": self.tree,
@@ -563,6 +575,7 @@ class SismoLabController:
         )
 
     def _restore_captured_state(self, state: dict) -> None:
+        #restore the exact saved model snapshot for undo recovery
         self.tree = state["tree"]
         self.event_manager = EventManager(self.tree)
         self.event_manager.active_events = state["active_events"]
@@ -587,6 +600,7 @@ class SismoLabController:
         incoming: Event,
         in_active_tree: bool = True,
     ) -> None:
+        #apply the incoming report revision to the stored event
         old_key = existing.key
         if in_active_tree and old_key != incoming.key:
             self.tree.delete(
@@ -612,6 +626,7 @@ class SismoLabController:
             )
 
     def set_archive_age_threshold(self, hours: float) -> None:
+        #configure when low-priority events become archive candidates
         if isinstance(hours, bool) or not isinstance(hours, (int, float)):
             raise ValueError("Archive age threshold T must be a positive number.")
         if not math.isfinite(hours) or hours <= 0:
@@ -624,6 +639,7 @@ class SismoLabController:
         )
 
     def advance_simulation_clock(self, hours: float) -> datetime:
+        #advance the scenario clock for time-based processing
         if isinstance(hours, bool) or not isinstance(hours, (int, float)):
             raise ValueError("Clock advance must be a positive number of hours.")
         if not math.isfinite(hours) or hours <= 0:
@@ -637,6 +653,7 @@ class SismoLabController:
         return self.simulation_clock
 
     def preview_archive_candidate(self) -> dict | None:
+        #find the biggest eligible subtree that can be archived
         """Select the largest eligible active subtree using its initial topology."""
         if self.tree.root is None:
             return None
@@ -697,6 +714,7 @@ class SismoLabController:
         }
 
     def archive_eligible_branch(self) -> dict | None:
+        #archive the selected branch and move it into the archive store
         candidate = self.preview_archive_candidate()
         if candidate is None:
             return None
@@ -726,6 +744,7 @@ class SismoLabController:
 
     @staticmethod
     def _event_from_report(report: dict) -> Event:
+        #convert a queued report payload into an Event model
         if not isinstance(report, dict):
             raise TypeError("A queued report must be a dictionary.")
 
@@ -767,6 +786,7 @@ class SismoLabController:
         )
 
     def update_event(self, event_id: int, new_data: dict) -> bool:
+        #update an existing event and keep the tree consistent
         if self.event_manager.get_event(event_id) is None:
             return False
 
@@ -793,6 +813,7 @@ class SismoLabController:
         return updated
 
     def get_event_search_details(self, event_id: int) -> dict | None:
+        #return the event plus AVL access metrics for lookup analysis
         """Return an event and AVL search metrics, or None when it is absent."""
         event = self.event_manager.get_event(event_id)
         if event is None:
@@ -824,6 +845,7 @@ class SismoLabController:
         }
 
     def set_costly_access_limit(self, limit: int) -> None:
+        #set the threshold that marks expensive AVL lookups
         if isinstance(limit, bool) or not isinstance(limit, int) or limit < 0:
             raise ValueError("Costly-access limit L must be a non-negative integer.")
         if limit == self.costly_access_limit:
@@ -832,6 +854,7 @@ class SismoLabController:
         self.costly_access_limit = limit
 
     def set_association_limits(self, time_window_hours: float, distance_km: float) -> None:
+        #configure the spatial-temporal window used for associations
         if (
             isinstance(time_window_hours, bool)
             or isinstance(distance_km, bool)
@@ -859,6 +882,7 @@ class SismoLabController:
         )
 
     def start_stress_mode(self) -> None:
+        #enable stress mode so AVL rotations are deferred
         if self.stress_manager.is_stress_mode:
             return
         self._push_full_undo_state()
@@ -866,6 +890,7 @@ class SismoLabController:
         self.auditor.log_event("START_STRESS_MODE", "Deferred AVL rotations")
 
     def recover_stress_mode(self) -> int:
+        #recover the AVL balance after stress mode and validate the result
         if not self.stress_manager.is_stress_mode:
             return 0
         self._push_full_undo_state()
@@ -888,6 +913,7 @@ class SismoLabController:
         return rotations
 
     def verify_structure(self) -> dict:
+        #audit the AVL tree and active catalog for structural consistency
         errors = []
         expected_imbalances = []
         seen_ids = set()
@@ -993,6 +1019,7 @@ class SismoLabController:
         }
 
     def query_top_pending(self, count: int) -> dict:
+        #list the most urgent pending events in the AVL tree
         if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
             raise ValueError("Query count k must be a positive integer.")
         result = []
@@ -1011,6 +1038,7 @@ class SismoLabController:
         return {"events": result, "nodes_examined": examined}
 
     def query_magnitude_range(self, minimum: float, maximum: float) -> dict:
+        #filter active events by magnitude interval
         if (
             isinstance(minimum, bool)
             or isinstance(maximum, bool)
@@ -1040,6 +1068,7 @@ class SismoLabController:
     def query_shallow_events_by_date(
         self, maximum_depth: float, start: datetime, end: datetime
     ) -> dict:
+        #select shallow events within a date window
         if (
             isinstance(maximum_depth, bool)
             or not isinstance(maximum_depth, (int, float))
@@ -1071,6 +1100,7 @@ class SismoLabController:
         return {"events": events, "nodes_examined": examined}
 
     def query_associations(self, event_id: int) -> dict | None:
+        #inspect event associations and their main reference candidates
         active_events, nodes_examined = self._events_in_tree()
         all_events = active_events + list(
             self.event_manager.archived_events.values()
@@ -1110,6 +1140,7 @@ class SismoLabController:
         }
 
     def _events_in_tree(self) -> tuple[list[Event], int]:
+        #walk the active tree and report all events plus total visits
         events = []
         examined = 0
         stack = [self.tree.root] if self.tree.root is not None else []
@@ -1124,6 +1155,7 @@ class SismoLabController:
         return events, examined
 
     def query_costly_access_events(self) -> dict:
+        #find events that exceed the costly-access threshold
         events = []
         examined = 0
         stack = (
@@ -1149,6 +1181,7 @@ class SismoLabController:
         return {"events": events, "nodes_examined": examined}
 
     def get_dashboard_metrics(self) -> dict:
+        #collect the current structural metrics shown in the dashboard
         """Return live structural, workload, priority, and rotation indicators."""
         preorder = []
         inorder = []
@@ -1234,6 +1267,7 @@ class SismoLabController:
 
     @staticmethod
     def _normalize_datetime(value: datetime) -> datetime:
+        #coerce all query timestamps to UTC before comparison
         if not isinstance(value, datetime):
             raise TypeError("Query date bounds must be datetime values.")
         if value.tzinfo is None:
@@ -1241,10 +1275,12 @@ class SismoLabController:
         return value.astimezone(timezone.utc)
 
     def build_comparison_tree(self) -> BinarySearchTree:
+        #build an unbalanced BST from active events in arrival order
         """Build an unbalanced BST from the active events in arrival order."""
         return BinarySearchTree(self.events)
 
     def mark_event_as_reviewed(self, event_id: int) -> bool:
+        #mark an event as reviewed and keep the audit trail updated
         event = self.event_manager.get_event(event_id)
         if event is None or event.status == "REVIEWED":
             return False
@@ -1259,6 +1295,7 @@ class SismoLabController:
         return reviewed
 
     def delete_event(self, event_id: int) -> bool:
+        #remove the event from the active set while preserving undo state
         if self.event_manager.get_event(event_id) is None:
             return False
 
@@ -1277,6 +1314,7 @@ class SismoLabController:
         return deleted
 
     def undo(self) -> bool:
+        #restore the previous snapshot if one exists in the undo stack
         if self.undo_stack.is_empty():
             return False
 
