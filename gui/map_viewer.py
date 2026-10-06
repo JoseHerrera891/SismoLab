@@ -5,10 +5,7 @@ from PyQt6.QtCore import Qt, QRectF
 
 
 class MapViewer(QWidget):
-    """
-    2D Map Visualization component for rendering seismic events,
-    epicenters, and populated zones within a 1000x1000 km grid.
-    """
+    #2d map renderind events, zones and epicenters in a plane 1000x1000
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -17,12 +14,10 @@ class MapViewer(QWidget):
         self.populated_zones = []
 
     def set_data(self, events: list, populated_zones: list):
-        """
-        Updates the events and zones data, triggering a canvas repaint.
-        """
+        #update the zones and events data, allowing to paint the canvas
         self.events = events
         self.populated_zones = populated_zones
-        self.update()  # Triggers paintEvent
+        self.update()  # updateds paintEvent
 
     def paintEvent(self, event):
         """
@@ -31,14 +26,14 @@ class MapViewer(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Draw background
+        # draw background
         painter.fillRect(self.rect(), QColor("#f3f4f6"))
 
-        # Map bounds scale (1000x1000 km mapped to widget dimensions)
+        # map bounds scale (1000x1000 km mapped to widget dimensions)
         width = self.width()
         height = self.height()
 
-        # 1. Draw Grid Lines
+        # draw Grid Lines
         painter.setPen(QPen(QColor("#333333"), 1, Qt.PenStyle.DashLine))
         for i in range(1, 10):
             x = (width / 10) * i
@@ -46,7 +41,7 @@ class MapViewer(QWidget):
             painter.drawLine(int(x), 0, int(x), height)
             painter.drawLine(0, int(y), width, int(y))
 
-        # 2. Draw zones, using different colors for populated and unpopulated areas.
+        # draw zones, using different colors for populated and unpopulated areas.
         for zone in self.populated_zones:
             # Scale coordinates from km to pixels
             px = (zone.x_min / 1000.0) * width
@@ -66,7 +61,7 @@ class MapViewer(QWidget):
             painter.setPen(QPen(zone_color, 1))
             painter.drawText(int(px + 4), int(py + 16), zone.name)
 
-        # 3. Draw Seismic Events (Epicenters)
+        # draw Seismic Events (Epicenters)
         priority_colors = {
             1: "#4da6ff",
             2: "#ffd24d",
