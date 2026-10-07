@@ -118,14 +118,14 @@ class MainWindow(QMainWindow):
         self.table.itemSelectionChanged.connect(
             self._load_selected_event_into_form
         )
-        #set panels to input (event management, avl and bst trees, arrhive, report queue)
+        #set panels in workflow order
         controls_panel = QWidget()
         self.controls_layout = QVBoxLayout(controls_panel)
-        self.setup_event_form()
         self.setup_association_settings()
         self.setup_clock_archive_panel()
-        self.setup_report_queue_panel()
+        self.setup_event_form()
         self.setup_actions_panel()
+        self.setup_report_queue_panel()
         self.setup_query_audit_panel()
         self.setup_audit_panel()
         self.controls_layout.addStretch()
@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
 
     def setup_association_settings(self):
         #association settings section
-        group = QGroupBox("Replica Association Settings")
+        group = QGroupBox("Replica Settings")
         layout = QVBoxLayout(group)
         #system setting for W and R (hours and distance between events to determinate if replica or not)
         self.spn_association_hours = self._make_spin_box(
@@ -265,7 +265,7 @@ class MainWindow(QMainWindow):
 
     def setup_clock_archive_panel(self):
         #simulation clock and archive section
-        group = QGroupBox("Simulation Clock and Archive")
+        group = QGroupBox("Clock and Archive")
         layout = QVBoxLayout(group)
         self.lbl_simulation_clock = QLabel()
         layout.addWidget(self.lbl_simulation_clock)
@@ -335,7 +335,7 @@ class MainWindow(QMainWindow):
         self.btn_review.clicked.connect(self._handle_mark_reviewed)
         self.btn_undo = QPushButton("Undo Last Action")
         self.btn_undo.clicked.connect(self._handle_undo)
-        self.btn_stress = QPushButton("Start Stress Simulation")
+        self.btn_stress = QPushButton("Start Stress")
         self.btn_stress.clicked.connect(self._handle_stress)
         self.btn_stress.setStyleSheet(
             "background-color: #d9534f; color: white; font-weight: bold;"
@@ -366,7 +366,7 @@ class MainWindow(QMainWindow):
 
     def setup_query_audit_panel(self):
         #query and audit section
-        group = QGroupBox("Queries and Structural Audit")
+        group = QGroupBox("Queries")
         layout = QVBoxLayout(group)
 
         self.btn_verify_structure = QPushButton("Verify AVL structure")
@@ -438,7 +438,7 @@ class MainWindow(QMainWindow):
 
     def setup_audit_panel(self):
         #audit log and metrics section
-        group = QGroupBox("Audit Log and Metrics")
+        group = QGroupBox("Audit, Metrics, and Log")
         layout = QVBoxLayout(group)
 
         self.lbl_structure_status = QLabel("Structure audit has not been run.")
@@ -1096,7 +1096,7 @@ class MainWindow(QMainWindow):
     def _handle_stress(self):
         if not self.controller.stress_manager.is_stress_mode:
             self.controller.start_stress_mode()
-            self.log_message("Stress simulation started; automatic rotations paused.")
+            self.log_message("Stress mode started; automatic rotations paused.")
             self._refresh_event_views()
             return
 
@@ -1107,8 +1107,8 @@ class MainWindow(QMainWindow):
             self.log_message(f"AVL recovery failed: {error}")
             return
 
-        self.btn_stress.setText("Start Stress Simulation")
-        self.log_message(f"Stress simulation finished; performed {rotations} rotations.")
+        self.btn_stress.setText("Start Stress")
+        self.log_message(f"Stress mode finished; performed {rotations} rotations.")
         self._refresh_event_views()
 
     def _handle_undo(self):
@@ -1189,9 +1189,9 @@ class MainWindow(QMainWindow):
                 )
         if hasattr(self, "btn_stress"):
             self.btn_stress.setText(
-                "Finish Stress Simulation"
+                "Finish Stress"
                 if self.controller.stress_manager.is_stress_mode
-                else "Start Stress Simulation"
+                else "Start Stress"
             )
             self.lbl_stress_mode.setText(
                 "Automatic AVL balancing is paused."
