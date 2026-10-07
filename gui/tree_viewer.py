@@ -157,12 +157,20 @@ class TreeViewer(QWidget):
         self.bst_canvas = None
         self.avl_metrics_label = None
         self.bst_metrics_label = None
-        self.replica_tree = None
         self._init_ui()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
-        self.btn_show_trees = QPushButton("View AVL, BST and Replica Trees")
+        layout.addWidget(QLabel("Replica Hierarchy"))
+        self.replica_tree = QTreeWidget()
+        self.replica_tree.setHeaderLabels(
+            ["Event ID", "Magnitude", "Coordinates (X, Y, Z)", "Timestamp"]
+        )
+        self.replica_tree.setMinimumHeight(100)
+        self.replica_tree.setMaximumHeight(190)
+        layout.addWidget(self.replica_tree)
+
+        self.btn_show_trees = QPushButton("View AVL and BST Trees")
         self.btn_show_trees.clicked.connect(self._show_tree_window)
         layout.addWidget(self.btn_show_trees)
 
@@ -176,8 +184,8 @@ class TreeViewer(QWidget):
         #the real function of this file, load the avl and bst tree from core and uses it to show the graphcis trees
     def _create_tree_window(self):
         self._tree_window = QDialog(self)
-        self._tree_window.setWindowTitle("AVL, BST and Replica Hierarchy")
-        self._tree_window.resize(1500, 700)
+        self._tree_window.setWindowTitle("AVL and BST Comparison")
+        self._tree_window.resize(1100, 700)
         self._tree_window.setAttribute(
             Qt.WidgetAttribute.WA_DeleteOnClose, True
         )
@@ -209,23 +217,11 @@ class TreeViewer(QWidget):
         bst_scroll_area.setWidget(self.bst_canvas)
         bst_layout.addWidget(bst_scroll_area)
 
-        replica_panel = QWidget()
-        replica_layout = QVBoxLayout(replica_panel)
-        replica_layout.addWidget(QLabel("Replica Hierarchy"))
-        self.replica_tree = QTreeWidget()
-        self.replica_tree.setHeaderLabels(
-            ["Event ID", "Magnitude", "Coordinates (X, Y, Z)", "Timestamp"]
-        )
-        self.replica_tree.setMinimumHeight(220)
-        replica_layout.addWidget(self.replica_tree)
-
         splitter.addWidget(avl_panel)
         splitter.addWidget(bst_panel)
-        splitter.addWidget(replica_panel)
-        splitter.setSizes([1, 1, 1])
+        splitter.setSizes([1, 1])
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 1)
-        splitter.setStretchFactor(2, 1)
         layout.addWidget(splitter)
 
     def _on_tree_window_closed(self):
@@ -234,16 +230,16 @@ class TreeViewer(QWidget):
         self.bst_canvas = None
         self.avl_metrics_label = None
         self.bst_metrics_label = None
-        self.replica_tree = None
         #this triggers only when a change is done in the event list, modifi it, eliminate, etc.
     def _refresh_tree_window(self):
-        if self._tree_window is None:
-            return
+        self._refresh_replica_tree()
+        if self._tree_window is not None:
+            self.avl_canvas.set_root(self._avl_root)
+            self.bst_canvas.set_root(self._bst_root)
+            self._set_metrics_label(self.avl_metrics_label, self._avl_root)
+            self._set_metrics_label(self.bst_metrics_label, self._bst_root)
 
-        self.avl_canvas.set_root(self._avl_root)
-        self.bst_canvas.set_root(self._bst_root)
-        self._set_metrics_label(self.avl_metrics_label, self._avl_root)
-        self._set_metrics_label(self.bst_metrics_label, self._bst_root)
+    def _refresh_replica_tree(self):
         self.replica_tree.clear()
 
         if self._replica_manager is None:
