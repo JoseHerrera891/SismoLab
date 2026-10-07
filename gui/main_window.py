@@ -418,7 +418,7 @@ class MainWindow(QMainWindow):
         for date_field in (self.dt_query_start, self.dt_query_end):
             date_field.setCalendarPopup(True)
             date_field.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
-        btn_shallow_query = QPushButton("Query shallow events by date")
+        btn_shallow_query = QPushButton("Query shallow events by date and depth")
         btn_shallow_query.clicked.connect(self._handle_query_shallow_events)
         layout.addWidget(self.spn_query_max_depth)
         layout.addWidget(QLabel("Date range (UTC):"))
